@@ -17,14 +17,6 @@
   "plugins": [
     "plugins/markdown"
   ],
-  "templates": {
-    "referenceTitle": "My SDK Name",
-    "disableSort": false,
-    "collapse": true,
-    "resources": {
-      "google": "https://www.google.com/"
-    }
-  },
   "opts": {
     "destination": "./docs/",
     "encoding": "utf8",

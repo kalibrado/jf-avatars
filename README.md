@@ -1,13 +1,3 @@
-### Spécifications sur le nommage des images
-
-Les images doivent respecter un schéma de nommage précis : `NomDossier-nom_image.png`. De plus, les images doivent être rangées dans le dossier `src/img` et triées dans des sous-dossiers en fonction du thème de l'image.
-
----
-
-Voici le `README.md` complet avec la modification :
-
----
-
 # jf-avatars
 
 ## Description

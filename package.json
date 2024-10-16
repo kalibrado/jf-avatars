@@ -7,17 +7,16 @@
     "doc": "./node_modules/jsdoc/jsdoc.js -c ./jsdoc.json -r ./src -d ./docs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "kalibrado",
+  "license": "MIT",
+  "repository": "https://github.com/kalibrado/jf-avatars",
+  "description": "Le projet jf-avatars est une application JavaScript qui permet de sélectionner des avatars depuis une galerie d'images dans un environnement compatible avec Jellyfin. Cette fonctionnalité utilise une modal personnalisée pour offrir à l'utilisateur une interface visuelle permettant de parcourir, filtrer et choisir une image de profil.",
   "devDependencies": {
     "@babel/core": "^7.25.8",
     "@babel/preset-env": "^7.25.8",
+    "@pixi/jsdoc-template": "^2.6.0",
     "babel-loader": "^9.2.1",
     "jsdoc": "^4.0.3",
     "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "@pixi/jsdoc-template": "^2.6.0"
   }
 }
