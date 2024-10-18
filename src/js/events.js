@@ -1,11 +1,15 @@
 import { constants } from "./constants.js";
-import { applyFilter, addImagesToGrid } from "./functions.js";
+import {
+  applyFilter,
+  addImagesToGrid,
+  toggleValidateButton,
+} from "./functions.js";
 import { props } from "./props.js";
-import { adjustResponsive } from "./style.js";
+import { adjustResponsive, setCssProperties } from "./style.js";
 
 /**
  * Configures event listeners for image search and filtering.
- * @function
+ * @function eventListener
  * @returns {void}
  */
 export const eventListener = () => {
@@ -17,7 +21,7 @@ export const eventListener = () => {
 
   /**
    * Applies filters based on both the dropdown and the search bar input.
-   * @function
+   * @function applySearchAndDropdownFilters
    * @param {Event} event - The event object triggered by the user input.
    * @returns {void}
    */
@@ -29,7 +33,7 @@ export const eventListener = () => {
     let selectedOption = dropdown?.value?.toLowerCase();
 
     // Start with all images
-    /** @type {Array} */
+    /** @type {Array<string>} */
     let filteredImages = constants.srcImages;
 
     // If a dropdown option other than the default is selected
@@ -55,7 +59,12 @@ export const eventListener = () => {
   // Event listener for adjusting layout when the window is resized
   window.addEventListener("resize", adjustResponsive);
 
+  /**
+   * @type {NodeListOf<HTMLImageElement>}
+   * Collection of images to lazy load.
+   */
   let lazyImages = document.querySelectorAll(".lazy-image");
+
   /**
    * Intersection Observer instance to lazy load images.
    * Observes when images enter the viewport and loads them by replacing the 'data-src' attribute with the 'src' attribute.
@@ -71,23 +80,51 @@ export const eventListener = () => {
          * @type {HTMLImageElement} img - The target image element being observed.
          */
         const img = entry.target;
-
         // Replace the 'src' attribute with the actual image source from 'data-src'
         const actualSrc = img.getAttribute("data-src");
 
         // Create a new Image to preload the actual image
         const image = new Image();
         image.src = actualSrc;
-
         // Once the actual image is loaded
         image.onload = () => {
           // Replace the loader with the actual image
           img.src = actualSrc;
+          img.classList.remove("blink");
+          setCssProperties(img, { cursor: "pointer" });
+
+          // Animation effect on hover
+          img.onmouseover = ({ target }) => {
+            if (props.selectedImage && props.selectedImage.src === target.src)
+              return;
+            setCssProperties(img, {
+              transform: "scale(1.1)",
+              boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
+              filter: "brightness(1)",
+            });
+          };
+
+          img.onmouseout = ({ target }) => {
+            if (props.selectedImage && props.selectedImage.src === target.src)
+              return;
+            setCssProperties(img, {
+              transform: "scale(1)",
+              boxShadow: "none",
+              filter: "brightness(0.5)",
+            });
+          };
+
+          img.onclick = ({ target }) => {
+            if (!target.src.endsWith(props.imageName)) {
+              toggleValidateButton(img);
+            }
+          };
         };
 
         // If there's an error loading the image, you can handle it here
         image.onerror = () => {
           console.error(`Error loading image: ${actualSrc}`);
+          img.remove();
         };
 
         // Stop observing the image since it's now loaded

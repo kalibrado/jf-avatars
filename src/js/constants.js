@@ -2,22 +2,25 @@
 /**
  * Object containing constants used in the application.
  *
- * This object centralizes constants related to images and options available 
- * in the application. The properties of this object can be modified at any time 
+ * This object centralizes constants related to images and options available
+ * in the application. The properties of this object can be modified at any time
  * depending on the application's needs.
  *
  * @typedef {Object} Constants
- * @property {Array<string>} srcImages - An array of image URLs used in the application. 
- * This array is initialized as empty and can be dynamically populated depending on 
+ * @property {boolean} debug - A flag indicating whether debug mode is enabled.
+ * This property helps in controlling debug-related functionality throughout the application.
+ * @property {Array<string>} srcImages - An array of image URLs used in the application.
+ * This array is initialized as empty and can be dynamically populated depending on
  * the available images.
- * @property {Array<Object>} options - An array of additional options, used to store 
- * configurations or parameters related to the display or usage of images. This array 
+ * @property {Array<Object>} options - An array of additional options used to store
+ * configurations or parameters related to the display or usage of images. This array
  * is also initialized as empty and can be populated based on the application's needs.
  *
  * @const {Constants}
  */
 export const constants = {
 
+    debug: false,
     srcImages: [
     "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Netflix/010c7b9061ece2fbf7bbb8d9bb6d2bee16f4a68c.png",
     "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Netflix/1b2d497a3f909e45b0cdbc08cc6d5aa1a949a1a2.png",
