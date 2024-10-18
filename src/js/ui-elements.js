@@ -1,5 +1,5 @@
 import { constants } from "./constants.js";
-import { addImagesToGrid, toggleValidateButton } from "./functions.js";
+import { addImagesToGrid } from "./functions.js";
 import { props } from "./props.js";
 import { setCssProperties } from "./style.js";
 
@@ -43,7 +43,7 @@ export const createButton = ({
  */
 export const createFilterDropdown = (domElement) => {
   let selectContainer = document.createElement("div");
- 
+
   setCssProperties(selectContainer, { width: "auto" });
   selectContainer.id = `${props.prefix}-dropdown-container`;
 
@@ -205,45 +205,23 @@ const createFooter = (domElement) => {
  */
 export const createImage = (url, idx, isSelected) => {
   let img = document.createElement("img");
-  img.setAttribute("data-src", url)
+  img.setAttribute("data-src", url);
   img.alt = `${props.prefix} img ${idx}`;
-  img.className = `lazy-image ${props.prefix}-img`;
+  img.className = `blink lazy-image ${props.prefix}-img`;
   img.id = `${props.prefix}-img-${idx}`;
   img.loading = "lazy";
+
   setCssProperties(img, {
     borderRadius: "100%",
     width: "100px",
     height: "100px",
     margin: "auto",
-    cursor: "pointer",
     backgroundSize: "cover",
-    transition: "transform 0.2s, box-shadow 0.2s",
+    transition: "transform 0.2s, box-shadow 0.2s, background-color 0.2s",
     filter: isSelected ? "brightness(1)" : "brightness(0.5)",
+    backgroundColor: "currentColor",
+    color: "currentColor",
   });
-
-  img.onmouseover = ({ target }) => {
-    if (props.selectedImage && props.selectedImage.src === target.src) return;
-    setCssProperties(img, {
-      transform: "scale(1.1)",
-      boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
-      filter: "brightness(1)",
-    });
-  };
-
-  img.onmouseout = ({ target }) => {
-    if (props.selectedImage && props.selectedImage.src === target.src) return;
-    setCssProperties(img, {
-      transform: "scale(1)",
-      boxShadow: "none",
-      filter: "brightness(0.5)",
-    });
-  };
-
-  img.onclick = ({ target }) => {
-    if (!target.src.endsWith(props.imageName)) {
-      toggleValidateButton(img);
-    }
-  };
   return img;
 };
 
