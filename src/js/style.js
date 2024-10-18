@@ -44,6 +44,14 @@ export const rippleStyle = `
     5% { top: 36px; left: 36px; width: 8px; height: 8px; opacity: 1; }
     100% { top: 0; left: 0; width: 80px; height: 80px; opacity: 0; }
   }
+  @keyframes blink {
+    from { transform: scale(0.1); opacity: 1;}
+    to { transform: scale(1); opacity: 0;}
+  }
+
+  .blink {
+    animation: blink 1s infinite;
+  }
 `;
 
 /**

@@ -1,3 +1,4 @@
+import { constants } from "./constants.js";
 import { props } from "./props.js";
 import { setCssProperties } from "./style.js";
 import {
@@ -5,6 +6,28 @@ import {
   createGridContainer,
   showRippleLoader,
 } from "./ui-elements.js";
+
+/**
+ * Logs data to the console when debug mode is enabled.
+ *
+ * This function checks the `debug` property in the `constants` object to determine
+ * whether to log the provided data. If debug mode is enabled, it organizes the log output
+ * into a console group for better readability.
+ *
+ * @param {...*} data - The data to log to the console. This can include any number of arguments,
+ * including strings, numbers, objects, or arrays.
+ *
+ * @example
+ * // Example usage:
+ * log('This is a debug message', { key: 'value' });
+ */
+export const log = (...data) => {
+  if (constants.debug) {
+    console.group(`######### ${props.prefix} #########`);
+    console.log(data);
+    console.groupEnd();
+  }
+};
 
 /**
  * Retrieves the image saved in local storage.
