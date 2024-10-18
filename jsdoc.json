@@ -22,8 +22,8 @@
   "templates": {
     "cleverLinks": true,
     "monospaceLinks": true,
-    "systemName": "Mon Projet",
-    "footer": "© 2024 Mon Nom",
+    "systemName": "jf-avatars",
+    "footer": "© 2024 Kalibrado",
     "navType": "vertical",
     "theme": "default",
     "linenums": true,
