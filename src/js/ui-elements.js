@@ -205,9 +205,9 @@ const createFooter = (domElement) => {
  */
 export const createImage = (url, idx, isSelected) => {
   let img = document.createElement("img");
-  img.src = url;
+  img.setAttribute("data-src", url)
   img.alt = `${props.prefix} img ${idx}`;
-  img.className = `${props.prefix}-img`;
+  img.className = `lazy-image ${props.prefix}-img`;
   img.id = `${props.prefix}-img-${idx}`;
   img.loading = "lazy";
   setCssProperties(img, {
