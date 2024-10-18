@@ -44,9 +44,8 @@ def generate_image_and_section_lists(images_dir, base_url):
                 relative_path = (
                     path.join(root, file).replace(images_dir, "").lstrip(sep)
                 )
+                section = relative_path.split("/")[0]
                 srcImages.add(base_url + relative_path)
-
-                section = file.split("-")[0]
                 options.add(section)
 
     image_files_list = sorted(list(srcImages))
@@ -74,16 +73,18 @@ def update_js_file(src_images, options, output):
 /**
  * Object containing constants used in the application.
  *
- * This object centralizes constants related to images and options available 
- * in the application. The properties of this object can be modified at any time 
+ * This object centralizes constants related to images and options available
+ * in the application. The properties of this object can be modified at any time
  * depending on the application's needs.
  *
  * @typedef {Object} Constants
- * @property {Array<string>} srcImages - An array of image URLs used in the application. 
- * This array is initialized as empty and can be dynamically populated depending on 
+ * @property {boolean} debug - A flag indicating whether debug mode is enabled.
+ * This property helps in controlling debug-related functionality throughout the application.
+ * @property {Array<string>} srcImages - An array of image URLs used in the application.
+ * This array is initialized as empty and can be dynamically populated depending on
  * the available images.
- * @property {Array<Object>} options - An array of additional options, used to store 
- * configurations or parameters related to the display or usage of images. This array 
+ * @property {Array<Object>} options - An array of additional options used to store
+ * configurations or parameters related to the display or usage of images. This array
  * is also initialized as empty and can be populated based on the application's needs.
  *
  * @const {Constants}
@@ -91,6 +92,7 @@ def update_js_file(src_images, options, output):
 export const constants = {
 """
     js_content += f"""
+    debug: false,
     srcImages: {src_images_str},
     options: {sections_str}
 """
