@@ -41,16 +41,13 @@ def generate_image_and_section_lists(images_dir, base_url):
     for root, _, files in walk(images_dir):
         for file in files:
             if file.endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp", ".svg")):
-                relative_path = (
-                    path.join(root, file).replace(images_dir, "").lstrip(sep)
-                )
+                relative_path = (path.join(root, file).replace(images_dir, "").lstrip(sep))
+                section = relative_path.split("/")[0]
                 srcImages.add(base_url + relative_path)
-
-                section = file.split("-")[0]
                 options.add(section)
 
-    image_files_list = sorted(list(srcImages))
-    sections_list = sorted(list(options))
+    image_files_list = list(srcImages)
+    sections_list = list(options)
 
     return image_files_list, sections_list
 
