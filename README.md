@@ -17,6 +17,40 @@ A big thank you to [BobHasNoSoul](https://github.com/BobHasNoSoul/jellyfin-avata
 - **Internationalization**: Support for language customization via CSS variables.
 - **Integration with Jellyfin**: Seamlessly integrates with Jellyfin themes, providing a cohesive experience.
 
+
+## Screenshots
+
+Here are some screenshots demonstrating the functionality and UI of the **jf-avatars** project across different devices.
+
+### Desktop View
+
+- **Show Modal Button**  
+  ![Desktop Show Modal Button](./screenshot/desktop-show-btn-modal.png)
+  
+- **Modal Open (Closed)**  
+  ![Desktop Modal Open (Closed)](./screenshot/desktop-show-modal-open-closed.png)
+  
+- **Modal Open (Selected)**  
+  ![Desktop Modal Open (Selected)](./screenshot/desktop-show-modal-open-seleted.png)
+  
+- **Full Modal View**  
+  ![Desktop Full Modal View](./screenshot/desktop-show-modal.png)
+
+### Mobile View
+
+- **Show Modal Button**  
+  ![Mobile Show Modal Button](./screenshot/mobil-show-btn-modal.png)
+
+- **Modal Open (Closed)**  
+  ![Mobile Modal Open (Closed)](./screenshot/mobil-show-modal-open-closed.png)
+
+- **Modal Open (Selected)**  
+  ![Mobile Modal Open (Selected)](./screenshot/mobil-show-modal-open-seleted.png)
+
+- **Full Modal View**  
+  ![Mobile Full Modal View](./screenshot/mobil-show-modal.png)
+
+
 ## Project Structure
 
 The project is structured as follows:
