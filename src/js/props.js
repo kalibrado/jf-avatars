@@ -51,49 +51,34 @@ export const props = {
   /**
    * @returns {string} Default option label for filter.
    */
-  getDefaultOptionLabel: () =>
-    cleanProperty(
-      getComputedStyle(document.body).getPropertyValue(
-        `--${prefix}-filter-default-option`
-      )
-    ) || "Choose an option",
+  getDefaultOptionLabel: () => window.i18n["filter-label"],
 
   /**
    * @returns {string} Search label.
    */
-  getSearchLabel: () =>
-    cleanProperty(
-      getComputedStyle(document.body).getPropertyValue(
-        `--${prefix}-search-label`
-      )
-    ) || "Search for an avatar...",
+  getSearchLabel: () => window.i18n["search-label"],
 
   /**
    * @returns {string} Cancel button label.
    */
-  getBtnCancelLabel: () =>
-    cleanProperty(
-      getComputedStyle(document.body).getPropertyValue(`--${prefix}-btn-cancel`)
-    ) || "Cancel",
+  getBtnCancelLabel: () => window.i18n["btn-cancel"],
 
   /**
    * @returns {string} Validate button label.
    */
-  getBtnValidateLabel: () =>
-    cleanProperty(
-      getComputedStyle(document.body).getPropertyValue(
-        `--${prefix}-btn-validate`
-      )
-    ) || "Validate",
+  getBtnValidateLabel: () => window.i18n["btn-validate"],
 
   /**
    * @returns {string} Label for showing more avatars.
    */
-  getBtnShowAvatarsLabel: () =>
-    cleanProperty(
-      getComputedStyle(document.body).getPropertyValue(`--${prefix}-btn-show`)
-    ) || "More avatars",
+  getBtnShowAvatarsLabel: () => window.i18n["btn-show"],
 
+  getCustomSrcImages: () =>
+    cleanProperty(
+      getComputedStyle(document.body).getPropertyValue(
+        `--${prefix}-custom-path-src-iamges`
+      )
+    ) || null,
   selectedImage: null,
   prefix,
   jfElementInjectBtnOpenModal: "#btnDeleteImage",

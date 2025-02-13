@@ -74,19 +74,21 @@ export const waitForElement = (
   selector,
   callback,
   interval = 100,
-  timeout = 5000
+  timeout = 1000
 ) => {
   const start = Date.now();
   const checkExist = setInterval(() => {
     const element = document.querySelector(selector);
     const elapsed = Date.now() - start;
+    log(`Wait Element ${selector}`);
     if (element) {
+      log(`Element ${element?.id || element?.textContent} founded`);
       clearInterval(checkExist);
       callback();
     }
     if (elapsed >= timeout) {
       clearInterval(checkExist);
-      console.error(`Element ${selector} not found within timeout period.`);
+      log(`Element ${selector} not found within timeout period.`);
     }
   }, interval);
 };
@@ -153,8 +155,8 @@ export const onSelectImage = async (src) => {
     body: base64Image.split(",")[1],
     method: "POST",
   })
-    .then((result) => console.log("User image successfully updated:", result))
-    .catch((error) => console.error("Error updating the image:", error))
+    .then((result) => log("User image successfully updated:", result))
+    .catch((error) => log("Error updating the image:", error))
     .finally(() => {
       const backgroundImage = `url('${src}')`;
       setCssProperties(document.getElementById("image"), { backgroundImage });
@@ -215,6 +217,95 @@ export const addImagesToGrid = (
     imgGrid.innerHTML = "";
     allImage.forEach((image) => imgGrid.appendChild(image));
   } else {
-    console.log("No more images available.");
+    log("No more images available.");
   }
+};
+
+export const loadCustomSrcImages = () => {
+  let pathCustom = props.getCustomSrcImages();
+  if (pathCustom && pathCustom.includes(".json")) {
+    fetch(pathCustom)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors du chargement du fichier JSON");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        log(data);
+        return data;
+      })
+      .catch((error) => {
+        console.error("Erreur :", error);
+      });
+  }
+  return constants.srcImages;
+};
+
+/**
+ * Load the user's preferred language or fallback to a default language if not available.
+ * The function tries to load the language file from a local source first, then falls back to a GitHub repository.
+ */
+export const loadLanguage = async () => {
+  const userLang = navigator.language.split("-")[0]; // Main language (e.g., "fr")
+  const defaultLang = "en"; // Default language
+
+  let selectedLang = userLang; // Selected language
+  let translations = {};
+
+  /**
+   * Attempts to load a language file from a given URL.
+   * @param {string} url - The URL of the JSON file to load.
+   * @returns {Promise<Object|null>} The loaded data if successful, null otherwise.
+   */
+  const tryLoadJson = async (url) => {
+    try {
+      log(`🔍 Attempting to load: ${url}`);
+      const response = await fetch(url, {
+        cache: "no-store", // Forces no cache
+      });
+      if (!response.ok) throw new Error(`File ${url} not found`);
+
+      const data = await response.json();
+      log("JSON loaded:", data);
+      return data;
+    } catch (error) {
+      log(`⚠️ Error loading from: ${url}, ${error.message}`);
+      return null;
+    }
+  };
+
+  /**
+   * Load a language file from local or GitHub URL.
+   * @param {string} lang - The language code (e.g., "fr", "en").
+   * @returns {Promise<Object|null>} The loaded translations if successful, null otherwise.
+   */
+  const loadJson = async (lang) => {
+    const localUrl = `${window.location.origin}/web/jf-avatars/src/lang/${lang}.json`;
+    const fallbackUrl = `https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/lang/${lang}.json`;
+
+    // Try loading from local URL first, then from GitHub if failed
+    let data = await tryLoadJson(localUrl);
+    if (!data) {
+      log(`🌐 Attempting to load from GitHub...`);
+      data = await tryLoadJson(fallbackUrl);
+    }
+
+    return data;
+  };
+
+  // Load the user's preferred language
+  translations = await loadJson(selectedLang);
+
+  // If the selected language is unavailable, load the default language
+  if (!translations) {
+    translations = await loadJson(defaultLang);
+  }
+  // Final check if translations are not available
+  if (!translations) {
+    log("❌ Unable to load language files.");
+    translations = {};
+  }
+  // Store translations globally
+  window.i18n = translations;
 };

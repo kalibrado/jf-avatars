@@ -14,9 +14,8 @@ A big thank you to [BobHasNoSoul](https://github.com/BobHasNoSoul/jellyfin-avata
 - **Responsive Image Grid**: Display of images in a grid format, adapted to all screen sizes.
 - **Search and Filter**: Image search functionality by name and filtering by category through a dropdown menu.
 - **Visual State Management**: Selected images are displayed in color while unselected ones appear in grayscale.
-- **Internationalization**: Support for language customization via CSS variables.
+- **Internationalization**: Automatic language management without needing to use CSS. The application now dynamically loads the correct language based on the user's preferences.
 - **Integration with Jellyfin**: Seamlessly integrates with Jellyfin themes, providing a cohesive experience.
-
 
 ## Screenshots
 
@@ -26,13 +25,10 @@ Here are some screenshots demonstrating the functionality and UI of the **jf-ava
 
 - **Show Modal Button**  
   ![Desktop Show Modal Button](./screenshot/desktop-show-btn-modal.png)
-  
 - **Modal Open (Closed)**  
   ![Desktop Modal Open (Closed)](./screenshot/desktop-show-modal-open-closed.png)
-  
 - **Modal Open (Selected)**  
   ![Desktop Modal Open (Selected)](./screenshot/desktop-show-modal-open-seleted.png)
-  
 - **Full Modal View**  
   ![Desktop Full Modal View](./screenshot/desktop-show-modal.png)
 
@@ -49,7 +45,6 @@ Here are some screenshots demonstrating the functionality and UI of the **jf-ava
 
 - **Full Modal View**  
   ![Mobile Full Modal View](./screenshot/mobil-show-modal.png)
-
 
 ## Project Structure
 
@@ -95,21 +90,11 @@ You can integrate the script into your project in two ways:
 - **Image Search**: Use the search bar to locate specific images by name.
 - **Category Filtering**: Select a category from the dropdown to filter images.
 
-### Language Management via CSS
+### Language Management
 
-The texts in the interface can be customized using CSS variables, allowing for easy management of internationalization:
+The language management is now fully automatic and does not require any configuration via CSS. The correct language is dynamically loaded based on the user's browser preferences.
 
-```css
-:root {
-  --jf-avatars-title: "Select your avatar";
-  --jf-avatars-filter-label: "Filter by";
-  --jf-avatars-search-label: "Search for an avatar...";
-  --jf-avatars-btn-cancel: "Cancel";
-  --jf-avatars-btn-validate: "Validate";
-}
-```
-
-The values are dynamically retrieved in the JavaScript to adapt to language preferences.
+The application will attempt to load the appropriate language file (e.g., `fr.json`, `en.json`) from the local server and, if not found, fall back to a GitHub repository.
 
 ### Integration with the Jellyfin Theme
 

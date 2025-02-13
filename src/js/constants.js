@@ -1,4 +1,3 @@
-
 /**
  * Object containing constants used in the application.
  *
@@ -19,9 +18,8 @@
  * @const {Constants}
  */
 export const constants = {
-
-    debug: false,
-    srcImages: [
+  debug: true,
+  srcImages: [
     "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Netflix/010c7b9061ece2fbf7bbb8d9bb6d2bee16f4a68c.png",
     "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Netflix/1b2d497a3f909e45b0cdbc08cc6d5aa1a949a1a2.png",
     "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Netflix/1def8ba1616b0966e1db6021f1055ca356d1cea9.png",
@@ -1642,15 +1640,14 @@ export const constants = {
     "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Xbox One/xbox-one-82.png",
     "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Xbox One/xbox-one-84.png",
     "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Xbox One/xbox-one-97.png",
-    "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Xbox One/xbox-one-99.png"
-],
-    options: [
+    "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/img/Xbox One/xbox-one-99.png",
+  ],
+  options: [
     "Netflix",
     "Playstation",
     "Pop Culture",
     "Steam",
     "Xbox 360",
-    "Xbox One"
-]
-
-}
+    "Xbox One",
+  ],
+};
