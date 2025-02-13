@@ -1,13 +1,18 @@
 import { eventListener } from "./events.js";
-import { getImageSaved, waitForElement } from "./functions.js";
+import {
+  getImageSaved,
+  loadLanguage,
+  waitForElement,
+  log,
+} from "./functions.js";
 import { props } from "./props.js";
 import { adjustResponsive, injectStyles } from "./style.js";
 import { createButton, createModal } from "./ui-elements.js";
 
 /**
- * Main file for integrating the avatar suggestion feature in Jellyfin.
- * Waits for an element to be available in the DOM, then injects styles, creates a button and a modal.
- * @fileoverview This file initializes UI components and styles for avatar selection.
+ * Observes DOM changes and injects UI components dynamically when necessary.
+ * Specifically targets the "userprofile" page for integrating the avatar suggestion feature in Jellyfin.
+ * @fileoverview Initializes UI components and styles for avatar selection.
  */
 
 /**
@@ -17,18 +22,18 @@ import { createButton, createModal } from "./ui-elements.js";
  * @returns {void}
  */
 const observeDOMChanges = () => {
-  const targetNode = document.body; // Observe the entire body to capture important changes.
+  const targetNode = document.body; // Observe the entire body to capture relevant changes.
   const config = { childList: true, subtree: true }; // Observe added/removed elements.
 
   /**
-   * Callback to respond to mutations in the DOM.
+   * Callback function for handling DOM mutations.
    * @param {MutationRecord[]} mutationsList - List of observed mutations.
    * @returns {void}
    */
   const callback = (mutationsList) => {
     for (let mutation of mutationsList) {
       if (mutation.type === "childList") {
-        // Reinject the button whenever the element is modified or recreated in the DOM
+        // Reinject the button if it's missing from the DOM
         if (!document.getElementById(`${props.prefix}-btn-show-modal`)) {
           waitForElement(props.jfElementInjectBtnOpenModal, () => {
             injectStyles(); // Inject necessary styles.
@@ -61,9 +66,14 @@ const observeDOMChanges = () => {
     }
   };
 
-  // Create a MutationObserver instance
-  const observer = new MutationObserver(callback);
-  observer.observe(targetNode, config); // Start observing
+  if (window.location.hash.includes("#/userprofile")) {
+    log("Navigation to userprofile detected.");
+    loadLanguage().then(() => {
+      // Create a MutationObserver instance
+      const observer = new MutationObserver(callback);
+      observer.observe(targetNode, config); // Start observing
+    });
+  }
 };
 
 // MutationObserver to monitor DOM changes
@@ -78,5 +88,4 @@ const observer = new MutationObserver((mutations) => {
   });
 });
 
-// Start observing the <body> to detect added nodes
 observer.observe(document.body, { childList: true, subtree: true });
