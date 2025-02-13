@@ -3,6 +3,7 @@ import {
   applyFilter,
   addImagesToGrid,
   toggleValidateButton,
+  log,
 } from "./functions.js";
 import { props } from "./props.js";
 import { adjustResponsive, setCssProperties } from "./style.js";
@@ -88,6 +89,7 @@ export const eventListener = () => {
         image.src = actualSrc;
         // Once the actual image is loaded
         image.onload = () => {
+          log(`Load img ${img.id}`)
           // Replace the loader with the actual image
           img.src = actualSrc;
           img.classList.remove("blink");
@@ -97,6 +99,7 @@ export const eventListener = () => {
           img.onmouseover = ({ target }) => {
             if (props.selectedImage && props.selectedImage.src === target.src)
               return;
+            log(`Mouse over img ${img.id}`)
             setCssProperties(img, {
               transform: "scale(1.1)",
               boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
@@ -107,6 +110,7 @@ export const eventListener = () => {
           img.onmouseout = ({ target }) => {
             if (props.selectedImage && props.selectedImage.src === target.src)
               return;
+            log(`Mouse out img ${img.id}`)
             setCssProperties(img, {
               transform: "scale(1)",
               boxShadow: "none",
@@ -116,6 +120,7 @@ export const eventListener = () => {
 
           img.onclick = ({ target }) => {
             if (!target.src.endsWith(props.imageName)) {
+              log(`Clicked img ${img.id}`)
               toggleValidateButton(img);
             }
           };
@@ -123,7 +128,7 @@ export const eventListener = () => {
 
         // If there's an error loading the image, you can handle it here
         image.onerror = () => {
-          console.error(`Error loading image: ${actualSrc}`);
+          log(`Error loading image: ${actualSrc}`);
           img.remove();
         };
 
@@ -139,6 +144,7 @@ export const eventListener = () => {
    * @param {NodeListOf<HTMLImageElement>} lazyImages - A collection of image elements to observe for lazy loading.
    */
   lazyImages.forEach((img) => {
+    log(`Lazy load img ${img.id}`)
     // Start observing each image for intersection
     observer.observe(img);
   });
