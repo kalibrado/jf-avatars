@@ -1,15 +1,17 @@
-import { constants } from "./constants.js";
-import { addImagesToGrid } from "./functions.js";
+import { eventListener } from "./events.js";
+import { addImagesToGrid, loadSrcImages, log } from "./functions.js";
 import { props } from "./props.js";
-import { setCssProperties } from "./style.js";
+import { adjustResponsive, setCssProperties } from "./style.js";
 
 /**
  * Creates a button with Jellyfin styling.
+ * 
  * @param {Object} options - Button configuration options.
  * @param {string} [options.id='createButton'] - The ID of the button.
  * @param {string} [options.textContent=`${props.prefix}-btn`] - The text displayed on the button.
  * @param {string} [options.display='block'] - The CSS display property of the button.
  * @param {function(): void} [options.onClick=() => ({} )] - The callback function to execute when the button is clicked.
+ * 
  * @returns {HTMLButtonElement} The created button.
  */
 export const createButton = ({
@@ -38,46 +40,8 @@ export const createButton = ({
 };
 
 /**
- * Creates a filter dropdown and adds it to a specified DOM element.
- * @param {HTMLElement} domElement - The DOM element where the dropdown will be added.
- */
-export const createFilterDropdown = (domElement) => {
-  let selectContainer = document.createElement("div");
-
-  setCssProperties(selectContainer, { width: "auto" });
-  selectContainer.id = `${props.prefix}-dropdown-container`;
-
-  let filterLabel = document.createElement("label");
-  filterLabel.classList.add("selectLabel");
-  filterLabel.setAttribute("for", `${props.prefix}-dropdown`);
-  filterLabel.textContent = props.getFilterLabel();
-
-  let filterSelect = document.createElement("select");
-  filterSelect.setAttribute("is", "emby-select");
-  filterSelect.className =
-    "selectDateTimeLocale emby-select-withcolor emby-select";
-  filterSelect.id = `${props.prefix}-dropdown`;
-
-  let defaultOption = document.createElement("option");
-  defaultOption.textContent = props.getDefaultOptionLabel();
-  defaultOption.value = props.getDefaultOptionLabel();
-  filterSelect.appendChild(defaultOption);
-
-  for (const option of constants.options) {
-    let filterOption = document.createElement("option");
-    filterOption.textContent = option;
-    filterOption.value = option;
-    filterSelect.appendChild(filterOption);
-  }
-
-  selectContainer.appendChild(filterLabel);
-  selectContainer.appendChild(filterSelect);
-
-  domElement.appendChild(selectContainer);
-};
-
-/**
  * Creates a search bar and adds it to a specified DOM element.
+ * 
  * @param {HTMLElement} domElement - The DOM element where the search bar will be added.
  */
 export const createSearchBar = (domElement) => {
@@ -109,6 +73,7 @@ export const createSearchBar = (domElement) => {
 
 /**
  * Creates a ripple-style loading element.
+ * 
  * @returns {HTMLElement} The loading element.
  */
 export const rippleLoader = () => {
@@ -127,6 +92,7 @@ export const rippleLoader = () => {
 
 /**
  * Displays the ripple loading element in the image grid.
+ * 
  * @returns {HTMLElement} The displayed loading element.
  */
 export const showRippleLoader = () => {
@@ -143,6 +109,7 @@ export const showRippleLoader = () => {
 
 /**
  * Creates the footer for the modal and adds it to a specified DOM element.
+ * 
  * @param {HTMLElement} domElement - The DOM element where the footer will be added.
  */
 const createFooter = (domElement) => {
@@ -166,7 +133,6 @@ const createFooter = (domElement) => {
   });
 
   createSearchBar(footerLeft);
-  createFilterDropdown(footerLeft);
 
   let footerRight = document.createElement("div");
   footerRight.id = `${props.prefix}-footer-right`;
@@ -179,7 +145,10 @@ const createFooter = (domElement) => {
     createButton({
       id: "cancel",
       textContent: props.getBtnCancelLabel(),
-      onClick: () => document.getElementById(`${props.prefix}-modal`).remove(),
+      onClick: () => {
+        document.getElementById(`${props.prefix}-modal`).remove();
+        document.getElementById(`${props.prefix}-backdrop-modal`).remove();
+      },
     })
   );
   footerRight.appendChild(
@@ -198,18 +167,20 @@ const createFooter = (domElement) => {
 
 /**
  * Creates an image and applies styles and events to it.
+ * 
  * @param {string} url - The URL of the image.
  * @param {number} idx - The index of the image in the list.
  * @param {boolean} isSelected - Indicates whether the image is selected.
+ * 
  * @returns {HTMLImageElement} The created image.
  */
-export const createImage = (url, idx, isSelected) => {
+export const createImage = (url, idx, isSelected = false) => {
   let img = document.createElement("img");
-  img.setAttribute("data-src", url);
   img.alt = `${props.prefix} img ${idx}`;
   img.className = `blink lazy-image ${props.prefix}-img`;
   img.id = `${props.prefix}-img-${idx}`;
   img.loading = "lazy";
+  img.setAttribute("data-src", url);
 
   setCssProperties(img, {
     borderRadius: "100%",
@@ -227,6 +198,7 @@ export const createImage = (url, idx, isSelected) => {
 
 /**
  * Creates or retrieves the image grid.
+ * 
  * @returns {HTMLElement} The image grid.
  */
 export const createGridContainer = () => {
@@ -249,25 +221,28 @@ export const createGridContainer = () => {
 
 /**
  * Creates and displays a modal with a title, an image grid, and a footer.
- *
+ * 
  * This function resets the selected image, creates a new modal element,
  * configures the necessary styles and attributes, and calls the function
  * `addImagesToGrid` to populate the image grid with the filtered images.
- *
+ * 
  * @throws {Error} If `props.getTitle()` is not defined or if `createGridContainer()` fails to create a grid.
+ * 
  * @returns {void} - This function does not return anything. It directly modifies the DOM
  *  by adding a modal to the page, integrating an image grid and a title.
  */
-export const createModal = () => {
+export const createModal = async () => {
   if (!props.getTitle()) {
     throw new Error(
       "The title of the modal must be defined in props.getTitle()."
     );
   }
 
-  props.selectedImage = null;
+  let srcImages = await loadSrcImages();
   let modal = document.createElement("div");
+  //
   modal.classList.add(
+    "dialogContainer",
     "focuscontainer",
     "dialog",
     "smoothScrollY",
@@ -275,7 +250,9 @@ export const createModal = () => {
     "background-theme-a",
     "formDialog",
     "centeredDialog",
-    "opened"
+    "opened",
+    "actionsheet-not-fullscreen",
+    "actionSheet"
   );
   modal.setAttribute("data-lockscroll", "true");
   modal.setAttribute("data-history", "true");
@@ -283,7 +260,7 @@ export const createModal = () => {
   modal.setAttribute("data-removeonclose", "true");
   setCssProperties(modal, {
     animation: "160ms ease-out 0s 1 normal both running scaleup",
-    margin: "90px 50px 0 50px",
+    margin: "95px 50px 0 50px",
   });
   modal.id = `${props.prefix}-modal`;
 
@@ -291,6 +268,8 @@ export const createModal = () => {
   setCssProperties(content, {
     margin: "0",
     padding: "1.25em 0.5em 1.25em 0.5em",
+    width: "95%",
+    height: "95%",
   });
 
   let title = document.createElement("h2");
@@ -301,15 +280,15 @@ export const createModal = () => {
   let imgGrid = createGridContainer();
   content.appendChild(imgGrid);
 
-  if (props.imageSaved) {
-    constants.srcImages = constants.srcImages.filter(
-      (url) => !url.endsWith(props.imageName)
-    );
-  }
-
-  addImagesToGrid(constants.srcImages, imgGrid);
+  addImagesToGrid(srcImages, imgGrid);
   createFooter(content);
 
   modal.appendChild(content);
+  let modalbackdrop = document.createElement("div");
+  modalbackdrop.id = `${props.prefix}-backdrop-modal`;
+  modalbackdrop.className = "dialogBackdrop dialogBackdropOpened";
+  document.body.appendChild(modalbackdrop);
   document.body.appendChild(modal);
+  adjustResponsive();
+  eventListener();
 };

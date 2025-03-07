@@ -1,4 +1,3 @@
-import { constants } from "./constants.js";
 import { props } from "./props.js";
 import { setCssProperties } from "./style.js";
 import {
@@ -10,9 +9,9 @@ import {
 /**
  * Logs data to the console when debug mode is enabled.
  *
- * This function checks the `debug` property in the `constants` object to determine
+ * This function checks the `debug` property in the `props` object to determine
  * whether to log the provided data. If debug mode is enabled, it organizes the log output
- * into a console group for better readability.
+ * into a console group for better readability and includes additional metadata like timestamps.
  *
  * @param {...*} data - The data to log to the console. This can include any number of arguments,
  * including strings, numbers, objects, or arrays.
@@ -22,10 +21,37 @@ import {
  * log('This is a debug message', { key: 'value' });
  */
 export const log = (...data) => {
-  if (constants.debug) {
-    console.group(`######### ${props.prefix} #########`);
-    console.log(data);
+  try {
+    if (!props?.debug()) return;
+
+    const timestamp = new Date().toLocaleString();
+
+    console.group(
+      `%c######### ${props.prefix} #########`,
+      "color: #3498db; font-weight: bold;"
+    );
+    console.log(`%c${timestamp}`, "color: #2ecc71;");
+
+    data.forEach((item) => {
+      const type = typeof item;
+      if (type === "object") {
+        if (item === null) {
+          console.log(null);
+        } else if (Array.isArray(item)) {
+          console.table(item);
+        } else if (item instanceof Error) {
+          console.error(item);
+        } else {
+          console.dir(item, { depth: null, colors: true });
+        }
+      } else {
+        console.log(item);
+      }
+    });
+
     console.groupEnd();
+  } catch (error) {
+    console.error("An error occurred in the log function:", error);
   }
 };
 
@@ -34,7 +60,7 @@ export const log = (...data) => {
  * @function
  * @returns {?string} - The selected image, or null if no image is saved.
  */
-export const getImageSaved = () =>
+export const getsrcImagesaved = () =>
   window.localStorage.getItem(`${props.prefix}-selected-img`) || null;
 
 /**
@@ -93,15 +119,22 @@ export const waitForElement = (
   }, interval);
 };
 
+export const getProfileImageUrl = () =>
+  document
+    .querySelector(
+      'div[class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound"]'
+    )
+    .style.backgroundImage.split('"')[1];
+
 /**
  * Applies a filter to an array of image URLs.
  * @param {string} by - The filtering criterion.
- * @param {Array<string>} [base=[]] - The array of URLs to filter.
- * @returns {Array<string>} - A filtered array containing matching URLs.
- * @description Allows searching for images in an array based on a specified criterion.
+ * @param {Array<string>} [base=[]] - The array of str to filter.
+ * @returns {Array<string>} - A filtered array containing matching str.
+ * @description Allows searching for srcImages in an array based on a specified criterion.
  */
 export const applyFilter = (by, base = []) => {
-  return base.filter((url) => url.toLowerCase().includes(by));
+  return base.filter((str) => str.toLowerCase().includes(by));
 };
 
 /**
@@ -169,35 +202,35 @@ export const onSelectImage = async (src) => {
 };
 
 /**
- * Adds images to the image grid, including a selected image and a saved image.
+ * Adds srcImages to the image grid, including a selected image and a saved image.
  *
- * This function manages the display of images in the grid, adjusts styles to
+ * This function manages the display of srcImages in the grid, adjusts styles to
  * ensure the grid is properly configured, and checks for the presence
- * of selected and saved images.
+ * of selected and saved srcImages.
  *
- * @param {string[]} filteredImages - The filtered images to add to the grid.
+ * @param {string[]} srcImages - The filtered srcImages to add to the grid.
  * Each image URL should be a valid string.
- * @param {HTMLElement} [imgGrid=createGridContainer()] - The image grid where images will be added.
+ * @param {HTMLElement} [imgGrid=createGridContainer()] - The image grid where srcImages will be added.
  * If not specified, a default grid will be used, created by the function `createGridContainer()`.
- * @throws {Error} If no images are provided in `filteredImages` or if `imgGrid` is not a valid element.
+ * @throws {Error} If no srcImages are provided in `srcImages` or if `imgGrid` is not a valid element.
  * @returns {void} - This function does not return anything. It directly modifies the DOM
- * to display images in the grid.
+ * to display srcImages in the grid.
  */
-export const addImagesToGrid = (
-  filteredImages,
+export const addImagesToGrid = async (
+  srcImages = [],
   imgGrid = createGridContainer()
 ) => {
-  showRippleLoader();
-
   if (!(imgGrid instanceof HTMLElement)) {
     throw new Error("imgGrid must be a valid HTML element.");
   }
+  showRippleLoader();
 
   let allImage = [];
-  filteredImages.forEach((url, idx) =>
-    allImage.push(createImage(url, idx, url.endsWith(props.imageName)))
-  );
 
+  srcImages.forEach((img, idx) => {
+    let url = img?.url || img?.imageUrl || img?.link || img?.src;
+    allImage.push(createImage(url, idx));
+  });
   // Add the selected image if it exists
   if (props.selectedImage) {
     allImage.unshift(
@@ -205,41 +238,78 @@ export const addImagesToGrid = (
     );
   }
 
-  // Add the saved image
-  allImage.unshift(createImage(props.imageSaved, `selected`, true));
+  allImage.unshift(createImage(getProfileImageUrl(), `selected`, true));
 
   if (allImage.length > 0) {
     setCssProperties(imgGrid, {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
       gap: "10px",
+      padding: "15px",
     });
     imgGrid.innerHTML = "";
     allImage.forEach((image) => imgGrid.appendChild(image));
   } else {
-    log("No more images available.");
+    log("No more srcImages available.");
   }
 };
 
-export const loadCustomSrcImages = () => {
-  let pathCustom = props.getCustomSrcImages();
-  if (pathCustom && pathCustom.includes(".json")) {
-    fetch(pathCustom)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur lors du chargement du fichier JSON");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        log(data);
-        return data;
-      })
-      .catch((error) => {
-        console.error("Erreur :", error);
-      });
+export const loadSrcImages = async () => {
+  let pathCustom = props.getSrcImages();
+  let data = [];
+
+  // Vérifier si les données sont dans le localStorage
+  const storageKey = `${props.prefix}-srcImages`;
+  const storedData = localStorage.getItem(storageKey);
+
+  if (storedData) {
+    try {
+      const parsedData = JSON.parse(storedData);
+      const storedDate = new Date(parsedData.timestamp);
+      const currentDate = new Date();
+
+      // Vérifier si les données ont moins d'un jour
+      const oneDayInMs = 24 * 60 * 60 * 1000;
+      if (
+        currentDate - storedDate < oneDayInMs &&
+        parsedData.src === pathCustom
+      ) {
+        log(
+          `Using cached srcImages (${parsedData.data.length}) from localStorage`
+        );
+        return parsedData.data;
+      }
+      // Sinon, les données sont périmées et seront rechargées
+    } catch (e) {
+      log("Error parsing stored data:", e);
+      // En cas d'erreur de parsing, continuer et recharger les données
+    }
   }
-  return constants.srcImages;
+
+  // Charger les données depuis l'URL
+  try {
+    const response = await fetch(pathCustom);
+    if (!response.ok) {
+      throw new Error("Fail to load srcImages");
+    }
+
+    data = await response.json();
+    log(`srcImages loaded ${data.length}`);
+
+    // Sauvegarder les données dans le localStorage avec un timestamp
+    const storageData = {
+      src: pathCustom,
+      timestamp: new Date().toISOString(),
+      data: data,
+    };
+
+    localStorage.setItem(storageKey, JSON.stringify(storageData));
+
+    return data;
+  } catch (error) {
+    log("Erreur :", error);
+    return [];
+  }
 };
 
 /**
@@ -260,7 +330,7 @@ export const loadLanguage = async () => {
    */
   const tryLoadJson = async (url) => {
     try {
-      log(`🔍 Attempting to load: ${url}`);
+      log(`Attempting to load: ${url}`);
       const response = await fetch(url, {
         cache: "no-store", // Forces no cache
       });
@@ -270,7 +340,7 @@ export const loadLanguage = async () => {
       log("JSON loaded:", data);
       return data;
     } catch (error) {
-      log(`⚠️ Error loading from: ${url}, ${error.message}`);
+      log(`Error loading from: ${url}, ${error.message}`);
       return null;
     }
   };
@@ -287,7 +357,7 @@ export const loadLanguage = async () => {
     // Try loading from local URL first, then from GitHub if failed
     let data = await tryLoadJson(localUrl);
     if (!data) {
-      log(`🌐 Attempting to load from GitHub...`);
+      log(`Attempting to load from GitHub...`);
       data = await tryLoadJson(fallbackUrl);
     }
 
@@ -303,7 +373,7 @@ export const loadLanguage = async () => {
   }
   // Final check if translations are not available
   if (!translations) {
-    log("❌ Unable to load language files.");
+    log("Unable to load language files.");
     translations = {};
   }
   // Store translations globally
