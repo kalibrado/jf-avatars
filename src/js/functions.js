@@ -245,6 +245,7 @@ export const addImagesToGrid = async (
       display: "grid",
       gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
       gap: "10px",
+      padding: "15px",
     });
     imgGrid.innerHTML = "";
     allImage.forEach((image) => imgGrid.appendChild(image));
