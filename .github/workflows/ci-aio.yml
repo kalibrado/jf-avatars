@@ -30,10 +30,7 @@ jobs:
       - name: Set tag name
         id: tag_name
         run: echo "TAG_NAME=${{ github.ref == 'refs/heads/main' && github.event_name == 'pull_request' && 'latest' || github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Run Python script
-        run: python src/scripts/generate_constants.py ${{ env.TAG_NAME }}
-
+        
       - name: Install node modules
         run: npm install
 
