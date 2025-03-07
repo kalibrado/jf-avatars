@@ -1,23 +1,19 @@
-import { eventListener } from "./events.js";
-import {
-  getImageSaved,
-  loadLanguage,
-  waitForElement,
-  log,
-} from "./functions.js";
+import { loadLanguage, waitForElement, log } from "./functions.js";
+import { injectStyles } from "./style.js";
 import { props } from "./props.js";
-import { adjustResponsive, injectStyles } from "./style.js";
 import { createButton, createModal } from "./ui-elements.js";
 
 /**
  * Observes DOM changes and injects UI components dynamically when necessary.
  * Specifically targets the "userprofile" page for integrating the avatar suggestion feature in Jellyfin.
- * @fileoverview Initializes UI components and styles for avatar selection.
+ *
+ * @module index
  */
 
 /**
  * Observes DOM changes (useful for Single Page Applications - SPA).
  * When an element is added or recreated, this function dynamically reinjects the "show-modal" button.
+ *
  * @function observeDOMChanges
  * @returns {void}
  */
@@ -27,56 +23,56 @@ const observeDOMChanges = () => {
 
   /**
    * Callback function for handling DOM mutations.
+   *
+   * @callback MutationCallback
    * @param {MutationRecord[]} mutationsList - List of observed mutations.
    * @returns {void}
    */
   const callback = (mutationsList) => {
     for (let mutation of mutationsList) {
       if (mutation.type === "childList") {
-        // Reinject the button if it's missing from the DOM
-        if (!document.getElementById(`${props.prefix}-btn-show-modal`)) {
-          waitForElement(props.jfElementInjectBtnOpenModal, () => {
-            injectStyles(); // Inject necessary styles.
-            // Create a button to show the modal before the specified element.
-            document.querySelector(props.jfElementInjectBtnOpenModal).before(
-              createButton({
-                id: "show-modal",
-                textContent: props.getBtnShowAvatarsLabel(),
-                /**
-                 * Function executed when the button is clicked.
-                 * @param {MouseEvent} event - The button click event.
-                 * @returns {void}
-                 */
-                onClick: () => {
-                  /** @type {?string} */
-                  let imageSaved = getImageSaved();
-                  props.imageName = imageSaved
-                    ? imageSaved.substring(imageSaved.lastIndexOf("/") + 1)
-                    : null;
-                  props.imageSaved = imageSaved;
-                  createModal();
-                  adjustResponsive();
-                  eventListener();
-                },
-              })
-            );
-          });
+        if (window.location.hash.includes("#/userprofile")) {
+          // Reinject the button if it's missing from the DOM
+          if (!document.getElementById(`${props.prefix}-btn-show-modal`)) {
+            waitForElement(props.injectBtnModal(), () => {
+              injectStyles();
+              document.querySelector(props.injectBtnModal()).before(
+                createButton({
+                  id: "show-modal",
+                  textContent: props.getBtnShowAvatarsLabel(),
+                  onClick: () => createModal(),
+                })
+              );
+
+              // Disconnect the observer once the button is injected
+              observer.disconnect();
+              log("Button injected, stopping observation.");
+            });
+          } else {
+            // The button already exists, no need to continue observation
+            observer.disconnect();
+            log("Button already exists, stopping observation.");
+          }
         }
       }
     }
   };
 
-  if (window.location.hash.includes("#/userprofile")) {
-    log("Navigation to userprofile detected.");
-    loadLanguage().then(() => {
-      // Create a MutationObserver instance
-      const observer = new MutationObserver(callback);
-      observer.observe(targetNode, config); // Start observing
-    });
-  }
+  log("Navigation to userprofile detected.");
+  loadLanguage().then(() => {
+    // Create a MutationObserver instance
+    const observer = new MutationObserver(callback);
+    observer.observe(targetNode, config); // Start observing
+  });
 };
 
-// MutationObserver to monitor DOM changes
+/**
+ * MutationObserver to monitor DOM changes for page-specific elements.
+ * Specifically checks for the addition of the branding CSS to initialize avatar modal functionality.
+ *
+ * @constant observer
+ * @type {MutationObserver}
+ */
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     mutation.addedNodes.forEach((node) => {

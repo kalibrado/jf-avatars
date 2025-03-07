@@ -1,3 +1,4 @@
+import { log } from "./functions.js";
 import { props } from "./props.js";
 
 /**
@@ -6,6 +7,7 @@ import { props } from "./props.js";
  * @param {HTMLElement} element - The element to apply the styles to.
  * @param {Object<string, string>} styles - An object containing key-value pairs of CSS properties.
  * @returns {void}
+ * @description This function dynamically applies CSS styles to an element.
  */
 export const setCssProperties = (element, styles) => {
   for (let property in styles) {
@@ -17,7 +19,7 @@ export const setCssProperties = (element, styles) => {
 
 /**
  * @constant {string} rippleStyle - CSS styles for the "ripple" effect.
- * @description Styles applied to the ripple animation displayed in the user interface.
+ * @description Defines the CSS styles used for the "ripple" effect applied to elements.
  */
 export const rippleStyle = `
   .lds-ripple, .lds-ripple div {
@@ -58,7 +60,8 @@ export const rippleStyle = `
  * Adjusts the layout of UI elements based on the window size.
  *
  * @function
- * @description Applies specific styles for mobile, tablet, and desktop layouts.
+ * @description Applies specific styles for mobile, tablet, and desktop layouts. 
+ * It targets elements such as the footer, search input, and grid container.
  * @returns {void}
  */
 export const adjustResponsive = () => {
@@ -66,9 +69,7 @@ export const adjustResponsive = () => {
   const searchInput = document.getElementById(
     `${props.prefix}-search-container`
   );
-  const dropdown = document.getElementById(
-    `${props.prefix}-dropdown-container`
-  );
+
   const gridContainer = document.getElementById(
     `${props.prefix}-grid-container`
   );
@@ -90,9 +91,7 @@ export const adjustResponsive = () => {
     setCssProperties(searchInput, {
       width: "100%",
     });
-    setCssProperties(dropdown, {
-      width: "100%",
-    });
+
     setCssProperties(footerLeft, {
       flexDirection: "column",
     });
@@ -110,9 +109,6 @@ export const adjustResponsive = () => {
       maxHeight: "60vh",
     });
     setCssProperties(searchInput, {
-      width: "100%",
-    });
-    setCssProperties(dropdown, {
       width: "100%",
     });
     setCssProperties(footerLeft, {
@@ -159,9 +155,6 @@ export const adjustResponsive = () => {
       maxHeight: "60vh",
     });
     setCssProperties(searchInput, {
-      width: "45%",
-    });
-    setCssProperties(dropdown, {
       width: "45%",
     });
   }
