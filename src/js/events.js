@@ -135,6 +135,24 @@ export const eventListener = () => {
         addImagesToGrid(filteredSrcImages, imgGrid);
         lazyImages().forEach((img) => observer.observe(img));
       }
+    } else {
+      // Génération d'avatars si aucune image correspondante
+      const avatarUrls = [
+        {
+          url: `https://api.dicebear.com/7.x/pixel-art/svg?seed=${searchTerm}`,
+        },
+        {
+          url: `https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortFlat&facialHairType=BeardLight&seed=${searchTerm}`,
+        },
+        { url: `https://api.multiavatar.com/${searchTerm}.svg` },
+        { url: `https://robohash.org/${searchTerm}.png` },
+        {
+          url: `https://ui-avatars.com/api/?name=${searchTerm}&background=random`,
+        },
+      ];
+      const imgGrid = document.querySelector(`#${props.prefix}-grid-container`);
+      addImagesToGrid(avatarUrls, imgGrid);
+      lazyImages().forEach((img) => observer.observe(img));
     }
   };
 
