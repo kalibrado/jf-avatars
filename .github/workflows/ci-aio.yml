@@ -55,7 +55,7 @@ jobs:
 
       # Nouvelle étape pour mettre à jour la version dans package.json
       - name: Update version in package.json
-        if: startsWith(github.ref, 'refs/tags/v') # S'assure que c'est un tag
+        if: startsWith(github.ref, 'refs/tags/') # S'assure que c'est un tag
         run: |
           VERSION=${{ env.TAG_NAME }}
           echo "Updating version in package.json to $VERSION"
@@ -63,7 +63,7 @@ jobs:
 
       # Commit et push des modifications si c'est un tag
       - name: Commit changes
-        if: startsWith(github.ref, 'refs/tags/v') # S'assure que c'est un tag
+        if: startsWith(github.ref, 'refs/tags/') # S'assure que c'est un tag
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
@@ -72,7 +72,7 @@ jobs:
           git commit -m "Update version to ${{ env.TAG_NAME }}"
 
       - name: Push changes
-        if: startsWith(github.ref, 'refs/tags/v') # S'assure que c'est un tag
+        if: startsWith(github.ref, 'refs/tags/') # S'assure que c'est un tag
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.PAT_TOKEN }}
