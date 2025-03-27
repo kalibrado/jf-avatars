@@ -38,7 +38,7 @@ jobs:
       - name: Upload documentation to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./docs/jf-avatars/${{ env.TAG_NAME }}"
+          path: "./docs"
 
       - name: Deploy to GitHub Pages
         id: deployment
@@ -67,6 +67,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
+          git pull
           git add package.json
           git commit -m "Update version to ${{ env.TAG_NAME }}"
 
