@@ -22,26 +22,16 @@ Special thanks to [BobHasNoSoul](https://github.com/BobHasNoSoul/jellyfin-avatar
 Here are some screenshots demonstrating the functionality and UI of the **js-avatars** project across different devices.
 
 ### Desktop View
-
-- **Show Modal Button**  
   ![Desktop Show Modal Button](./screenshot/desktop-show-btn-modal.png)
-- **Modal Open (Closed)**  
-  ![Desktop Modal Open (Closed)](./screenshot/desktop-show-modal-open-closed.png)
-- **Modal Open (Selected)**  
-  ![Desktop Modal Open (Selected)](./screenshot/desktop-show-modal-open-selected.png)
-- **Full Modal View**  
   ![Desktop Full Modal View](./screenshot/desktop-show-modal.png)
+  ![Desktop Modal Open (Selected)](./screenshot/desktop-show-modal-open-seleted.png)
+  ![Desktop Modal Open (Closed)](./screenshot/desktop-show-modal-open-closed.png)
 
 ### Mobile View
-
-- **Show Modal Button**  
-  ![Mobile Show Modal Button](./screenshot/mobile-show-btn-modal.png)
-- **Modal Open (Closed)**  
-  ![Mobile Modal Open (Closed)](./screenshot/mobile-show-modal-open-closed.png)
-- **Modal Open (Selected)**  
-  ![Mobile Modal Open (Selected)](./screenshot/mobile-show-modal-open-selected.png)
-- **Full Modal View**  
-  ![Mobile Full Modal View](./screenshot/mobile-show-modal.png)
+  ![Mobile Show Modal Button](./screenshot/mobil-show-btn-modal.png)
+  ![Mobile Modal Open (Closed)](./screenshot/mobil-show-modal.png)
+  ![Mobile Modal Open (Selected)](./screenshot/mobil-show-modal-open-seleted.png)
+  ![Mobile Full Modal View](./screenshot/mobil-show-modal-open-closed.png)
 
 ## Project Structure
 
