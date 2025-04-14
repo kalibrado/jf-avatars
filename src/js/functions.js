@@ -198,6 +198,7 @@ export const onSelectImage = async (src) => {
       ).innerHTML = `<div class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound" style="background-image:${backgroundImage};"></div>`;
       window.localStorage.setItem(`${props.prefix}-selected-img`, src);
       document.getElementById(`${props.prefix}-modal`).remove();
+      document.getElementById(`${props.prefix}-backdrop-modal`).remove();
     });
 };
 
