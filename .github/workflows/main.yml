@@ -26,6 +26,11 @@ jobs:
       - name: Set tag name
         id: tag_name
         run: echo "TAG_NAME=${{ github.ref == 'refs/heads/main' && github.event_name == 'pull_request' && 'latest' || github.ref_name }}" >> $GITHUB_ENV
+      - name: Update version in package.json
+        run: |
+          VERSION=${{ env.TAG_NAME }}
+          echo "Updating version in package.json to $VERSION"
+          npm version $VERSION --allow-same-version --no-git-tag-version
       - name: Build the project
         run: npm run build
       - name: Generate documentation
@@ -41,15 +46,11 @@ jobs:
       - name: Upload documentation to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./docs/jf-avatars/"
+          path: "./docs/jf-avatars/${{ env.TAG_NAME }}"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Update version in package.json
-        run: |
-          VERSION=${{ env.TAG_NAME }}
-          echo "Updating version in package.json to $VERSION"
-          npm version $VERSION --allow-same-version --no-git-tag-version
+
       - name: Commit changes
         run: |
           git config --global user.name 'GitHub Actions'
