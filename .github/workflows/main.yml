@@ -1,19 +1,19 @@
 name: Release
-
 on:
   push:
     tags:
       - "*"
-
   workflow_dispatch:
-
 concurrency:
   group: "pages"
   cancel-in-progress: false
-
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Ajout de l'environnement ici
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: write
       pages: write
@@ -21,20 +21,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Install node modules
         run: npm install
-
       - name: Set tag name
         id: tag_name
         run: echo "TAG_NAME=${{ github.ref == 'refs/heads/main' && github.event_name == 'pull_request' && 'latest' || github.ref_name }}" >> $GITHUB_ENV
-
       - name: Build the project
         run: npm run build
-
       - name: Generate documentation
         run: npm run docs
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -43,29 +38,24 @@ jobs:
           files: ./dist/main.js
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-
       - name: Upload documentation to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: "./docs/jf-avatars/"
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
       - name: Update version in package.json
         run: |
           VERSION=${{ env.TAG_NAME }}
           echo "Updating version in package.json to $VERSION"
           npm version $VERSION --allow-same-version --no-git-tag-version
-
       - name: Commit changes
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add package.json
           git commit -m "Update version to ${{ env.TAG_NAME }}"
-
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
