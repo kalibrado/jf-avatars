@@ -1,45 +1,11 @@
-name: Build and Release
+name: Release
 
 on:
   push:
     tags:
-      - 'v*.*.*' # Déclenche pour les tags de version type v1.0.0
-    branches:
-      - main
+      - "*"
 
 jobs:
-  doc-publish:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build documentation
-        run: |
-          npm run build
-          npm run doc
-
-      - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: ./docs # Remplace par le bon dossier de sortie
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
-
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
