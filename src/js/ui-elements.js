@@ -1,4 +1,4 @@
-import { eventListener } from "./events.js";
+import { applySearchAndFilters, eventListener } from "./events.js";
 import {
   addImagesToGrid,
   loadSrcImages,
@@ -136,8 +136,10 @@ const createFooter = async (domElement) => {
     display: "flex",
     justifyContent: "space-between",
   });
+  createRandomBtn(footerLeft);
   createDropdown(footerLeft);
   createSearchBar(footerLeft);
+
   footer.appendChild(footerLeft);
 
   let footerRight = document.createElement("div");
@@ -152,6 +154,7 @@ const createFooter = async (domElement) => {
       id: "cancel",
       textContent: props.getBtnCancelLabel(),
       onClick: () => {
+        props.selectedImage = null;
         document.getElementById(`${props.prefix}-modal`).remove();
         document.getElementById(`${props.prefix}-backdrop-modal`).remove();
       },
@@ -294,10 +297,8 @@ export const createModal = async () => {
   document.body.appendChild(modalbackdrop);
   document.body.appendChild(modal);
 
-  setTimeout(() => {
-    adjustResponsive();
-    eventListener();
-  }, 1000);
+  adjustResponsive();
+  eventListener();
 };
 
 /**
@@ -312,7 +313,7 @@ export const createModal = async () => {
  *
  * @returns {HTMLElement} The dropdown container with all elements.
  */
-export const createDropdown = async (domElement) => {
+export const createDropdown = (domElement) => {
   // Add the dropdown to a DOM element
 
   let idx = `${props.prefix}-dropdown-filter`;
@@ -341,17 +342,28 @@ export const createDropdown = async (domElement) => {
   let select = document.createElement("select");
   select.id = `${props.prefix}-dropdown-select-filter`;
   select.classList.add("emby-select");
-  const folders_names = await tryLoadJson(props.getSrcCatImages());
-  const defaultValue = props.getDefaultOptionLabel();
-  // Add options to select
-  [defaultValue, ...folders_names].forEach((item) => {
-    let option = document.createElement("option");
-    option.value = item;
-    option.textContent = item;
-    if (item === defaultValue) {
-      option.selected = true;
+
+  tryLoadJson(props.getSrcCatImages()).then((folders_names) => {
+    const optionAll = props.getDefaultOptionLabel();
+    const defaultValue =
+      folders_names[Math.floor(Math.random() * folders_names.length)];
+
+    // Add options to select
+    [optionAll, ...folders_names].forEach((item) => {
+      let option = document.createElement("option");
+      option.value = item;
+      option.textContent = item;
+      if (item === defaultValue) {
+        option.selected = true;
+        applySearchAndFilters({ target: { value: item } });
+      }
+      select.appendChild(option);
+    });
+    // If a default value is set, make sure label is styled correctly
+    if (defaultValue) {
+      dropdownLabel.classList.remove("inputLabelUnfocused");
+      dropdownLabel.classList.add("inputLabelFocused");
     }
-    select.appendChild(option);
   });
 
   // Style the select element
@@ -376,11 +388,46 @@ export const createDropdown = async (domElement) => {
     }
   });
 
-  // If a default value is set, make sure label is styled correctly
-  if (defaultValue) {
-    dropdownLabel.classList.remove("inputLabelUnfocused");
-    dropdownLabel.classList.add("inputLabelFocused");
+  domElement.appendChild(dropdownContainer);
+};
+
+export const createRandomBtn = (domElement) => {
+  let randomBtnExist = document.getElementById(`${props.prefix}-btn-random`);
+  if (randomBtnExist) {
+    return randomBtnExist;
   }
 
-  domElement.appendChild(dropdownContainer);
+  const randomBtn = document.createElement("button");
+  randomBtn.id = `${props.prefix}-btn-random`;
+  randomBtn.setAttribute("is", "emby-button");
+  randomBtn.setAttribute("type", "button");
+  randomBtn.setAttribute("class", "button-flat detailButton emby-button");
+
+  const div = document.createElement("div");
+
+  div.setAttribute("class", "detailButton-content");
+
+  const span = document.createElement("span");
+  span.setAttribute("class", "material-icons detailButton-icon shuffle ");
+  span.setAttribute("aria-hidden", "true");
+
+  randomBtn.onclick = () => {
+    let images = document.querySelectorAll(
+      `#${props.prefix}-grid-container>img`
+    );
+
+    let randomImage = images[Math.floor(Math.random() * images.length)];
+
+    randomImage.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+      inline: "center",
+    });
+
+    document.getElementById(randomImage.id).click();
+  };
+
+  div.appendChild(span);
+  randomBtn.appendChild(div);
+  domElement.appendChild(randomBtn);
 };

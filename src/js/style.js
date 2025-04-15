@@ -1,4 +1,3 @@
-import { log } from "./functions.js";
 import { props } from "./props.js";
 
 /**
