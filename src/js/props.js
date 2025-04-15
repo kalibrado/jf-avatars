@@ -179,4 +179,21 @@ export const props = {
    * @default "https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/lang/"
    */
   fallbackUrl,
+
+  /**
+   * The URL for the avatar images.
+   * @type {string}
+   * @description This URL is used to load the avatar images from various sources. D
+   */
+  avatarUrls: (searchTerm) => [
+    { url: `https://api.dicebear.com/7.x/pixel-art/svg?seed=${searchTerm}` },
+    {
+      url: `https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortFlat&facialHairType=BeardLight&seed=${searchTerm}`,
+    },
+    { url: `https://api.multiavatar.com/${searchTerm}.svg` },
+    { url: `https://robohash.org/${searchTerm}.png` },
+    {
+      url: `https://ui-avatars.com/api/?name=${searchTerm}&background=random`,
+    },
+  ],
 };
