@@ -115,7 +115,6 @@ export const eventListener = () => {
   const applySearchAndFilters = async (event) => {
     /** @type {string} */
     let searchTerm = event.target?.value?.toLowerCase();
-    console.log("Search term:", searchTerm);
     // Show loading indicator
     showRippleLoader();
 
@@ -128,9 +127,9 @@ export const eventListener = () => {
       !searchTerm || searchTerm.trim() === ""
         ? allSrcImages
         : allSrcImages.filter((img) => {
-            console.log("Image URL:", img);
-            console.log("Search term:", searchTerm);
             const url = img.url || "";
+            log("Search term:", searchTerm);
+            log("Image:", img);
             return url.toLowerCase().includes(searchTerm.toLowerCase());
           });
 
