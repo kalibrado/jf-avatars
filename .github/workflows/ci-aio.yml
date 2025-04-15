@@ -24,31 +24,31 @@ jobs:
         id: tag_name
         run: echo "TAG_NAME=${{ github.ref == 'refs/heads/main' && github.event_name == 'pull_request' && 'latest' || github.ref_name }}" >> $GITHUB_ENV
         
-      # - name: Install node modules
-      #   run: npm install
+      - name: Install node modules
+        run: npm install
 
-      # - name: Build the project
-      #   run: npm run build
+      - name: Build the project
+        run: npm run build
 
-      # - name: Generate documentation
-      #   run: npm run docs
+      - name: Generate documentation
+        run: npm run docs
 
-      # - name: Upload documentation to GitHub Pages
-      #   uses: actions/upload-pages-artifact@v3
-      #   with:
-      #     path: "./docs/jf-avatar/${{ steps.tag_name.outputs.TAG_NAME }}"
-      #     name: "jf-avatar-docs"
+      - name: Upload documentation to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./docs/jf-avatar/${{ steps.tag_name.outputs.TAG_NAME }}"
+          name: "jf-avatar-docs"
 
-      # - name: Deploy to GitHub Pages
-      #   id: deployment
-      #   uses: actions/deploy-pages@v4
-      #   with:
-      #     site: jf-avatar-docs
-      #     target_branch: gh-pages
-      #     token: ${{ secrets.PAT_TOKEN }}
-      #     keep_files: false
-      #     publish_dir: ./docs/jf-avatar/${{ steps.tag_name.outputs.TAG_NAME }}
-      #     clean: true
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          site: jf-avatar-docs
+          target_branch: gh-pages
+          token: ${{ secrets.PAT_TOKEN }}
+          keep_files: false
+          publish_dir: ./docs/jf-avatar/${{ steps.tag_name.outputs.TAG_NAME }}
+          clean: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
