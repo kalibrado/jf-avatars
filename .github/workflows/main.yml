@@ -5,6 +5,8 @@ on:
     tags:
       - "*"
 
+  workflow_dispatch:
+
 jobs:
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -15,7 +17,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install node modules
+        run: npm install
+
+      - name: Set tag name
+        id: tag_name
+        run: echo "TAG_NAME=${{ github.ref == 'refs/heads/main' && github.event_name == 'pull_request' && 'latest' || github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Update version in package.json
+        run: |
+          VERSION=${{ env.TAG_NAME }}
+          echo "Updating version in package.json to $VERSION"
+          npm version $VERSION --allow-same-version --no-git-tag-version
+
+      - name: Build the project
+        run: npm run build
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ env.TAG_NAME }}
           generate_release_notes: true
+          files: ./dist/main.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add package.json
+          git commit -m "Update version to ${{ env.TAG_NAME }}"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }}
+          branch: refs/heads/main
