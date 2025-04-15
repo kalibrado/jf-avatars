@@ -9,55 +9,12 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Set tag name
-        run: echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Install node modules
-        run: npm install
-
-      - name: Build the project
-        run: npm run build
-
-      - name: Generate documentation
-        run: npm run docs
-
-      - name: Prepare documentation directory
-        run: |
-          DOC_DIR="./docs/jf-avatars/${TAG_NAME}"
-          echo "Creating doc dir: $DOC_DIR"
-          mkdir -p "$DOC_DIR"
-          mv ./docs/* "$DOC_DIR" || echo "No docs to move"
-
-      - name: Show docs content
-        run: ls -R ./docs
-
-      - name: Upload documentation to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./docs/jf-avatars/${{ env.TAG_NAME }}"
-          name: "jf-avatars-docs"
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          site: jf-avatars-docs
-          target_branch: gh-pages
-          token: ${{ secrets.PAT_TOKEN }}
-          keep_files: false
-          publish_dir: ./docs/jf-avatars/${{ env.TAG_NAME }}
-          clean: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
