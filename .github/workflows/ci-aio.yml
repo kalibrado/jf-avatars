@@ -39,6 +39,9 @@ jobs:
           mkdir -p "$DOC_DIR"
           mv ./docs/* "$DOC_DIR" || echo "No docs to move"
 
+      - name: Disable Jekyll on GitHub Pages
+        run: touch ./docs/jf-avatar/${{ env.TAG_NAME }}/.nojekyll
+
       - name: Show docs content
         run: ls -R ./docs
 
