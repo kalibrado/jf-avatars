@@ -37,7 +37,7 @@ jobs:
       - name: Upload documentation to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./docs/jf-avatars/${{TAG_NAME}}/"
+          path: "./docs/jf-avatars/${{ GITHUB_ENV }}/"
 
       - name: Deploy to GitHub Pages
         id: deployment
