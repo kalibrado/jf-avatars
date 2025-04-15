@@ -3,8 +3,6 @@ name: CI
 on:
   push:
     tags: ["*"] # Déclenchement pour tous les tags qui commencent par "v"
-  pull_request:
-    branches: ["main"] # Déclenchement pour les merge requests vers main
 
 permissions:
   contents: write
