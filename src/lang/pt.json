@@ -2,5 +2,8 @@
   "title": "Selecione seu avatar",
   "btn-cancel": "Cancelar",
   "btn-validate": "Validar",
-  "btn-show": "Mais avatares"
+  "btn-show": "Mais avatares",
+  "search-label": "Pesquise um avatar...",
+  "filter-label": "Filtrar por categoria",
+  "default-option": "Todos"
 }

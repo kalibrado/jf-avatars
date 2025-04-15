@@ -289,7 +289,7 @@ export const loadSrcImages = async () => {
 
   // Charger les données depuis l'URL
   try {
-    const response = await fetch(pathCustom);
+    const response = await tryLoadJson(pathCustom);
     if (!response.ok) {
       throw new Error("Fail to load srcImages");
     }
@@ -325,35 +325,13 @@ export const loadLanguage = async () => {
   let translations = {};
 
   /**
-   * Attempts to load a language file from a given URL.
-   * @param {string} url - The URL of the JSON file to load.
-   * @returns {Promise<Object|null>} The loaded data if successful, null otherwise.
-   */
-  const tryLoadJson = async (url) => {
-    try {
-      log(`Attempting to load: ${url}`);
-      const response = await fetch(url, {
-        cache: "no-store", // Forces no cache
-      });
-      if (!response.ok) throw new Error(`File ${url} not found`);
-
-      const data = await response.json();
-      log("JSON loaded:", data);
-      return data;
-    } catch (error) {
-      log(`Error loading from: ${url}, ${error.message}`);
-      return null;
-    }
-  };
-
-  /**
    * Load a language file from local or GitHub URL.
    * @param {string} lang - The language code (e.g., "fr", "en").
    * @returns {Promise<Object|null>} The loaded translations if successful, null otherwise.
    */
   const loadJson = async (lang) => {
     const localUrl = `${window.location.origin}/web/jf-avatars/src/lang/${lang}.json`;
-    const fallbackUrl = `https://raw.githubusercontent.com/kalibrado/jf-avatars/refs/heads/main/src/lang/${lang}.json`;
+    const fallbackUrl = `${props.fallbackUrl}/${lang}.json`;
 
     // Try loading from local URL first, then from GitHub if failed
     let data = await tryLoadJson(localUrl);
@@ -379,4 +357,24 @@ export const loadLanguage = async () => {
   }
   // Store translations globally
   window.i18n = translations;
+};
+
+/**
+ * Attempts to load a language file from a given URL.
+ * @param {string} url - The URL of the JSON file to load.
+ * @returns {Promise<Object|null>} The loaded data if successful, null otherwise.
+ */
+export const tryLoadJson = async (url, cache = "no-store") => {
+  try {
+    log(`Attempting to load: ${url}`);
+    const response = await fetch(url, { cache });
+    if (!response.ok) throw new Error(`File ${url} not found`);
+
+    const data = await response.json();
+    log("JSON loaded:", data);
+    return data;
+  } catch (error) {
+    log(`Error loading from: ${url}, ${error.message}`);
+    return null;
+  }
 };
