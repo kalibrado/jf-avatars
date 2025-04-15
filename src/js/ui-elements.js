@@ -1,17 +1,22 @@
 import { eventListener } from "./events.js";
-import { addImagesToGrid, loadSrcImages, log } from "./functions.js";
+import {
+  addImagesToGrid,
+  loadSrcImages,
+  log,
+  tryLoadJson,
+} from "./functions.js";
 import { props } from "./props.js";
 import { adjustResponsive, setCssProperties } from "./style.js";
 
 /**
  * Creates a button with Jellyfin styling.
- * 
+ *
  * @param {Object} options - Button configuration options.
  * @param {string} [options.id='createButton'] - The ID of the button.
  * @param {string} [options.textContent=`${props.prefix}-btn`] - The text displayed on the button.
  * @param {string} [options.display='block'] - The CSS display property of the button.
  * @param {function(): void} [options.onClick=() => ({} )] - The callback function to execute when the button is clicked.
- * 
+ *
  * @returns {HTMLButtonElement} The created button.
  */
 export const createButton = ({
@@ -41,7 +46,7 @@ export const createButton = ({
 
 /**
  * Creates a search bar and adds it to a specified DOM element.
- * 
+ *
  * @param {HTMLElement} domElement - The DOM element where the search bar will be added.
  */
 export const createSearchBar = (domElement) => {
@@ -73,7 +78,7 @@ export const createSearchBar = (domElement) => {
 
 /**
  * Creates a ripple-style loading element.
- * 
+ *
  * @returns {HTMLElement} The loading element.
  */
 export const rippleLoader = () => {
@@ -92,7 +97,7 @@ export const rippleLoader = () => {
 
 /**
  * Displays the ripple loading element in the image grid.
- * 
+ *
  * @returns {HTMLElement} The displayed loading element.
  */
 export const showRippleLoader = () => {
@@ -109,10 +114,10 @@ export const showRippleLoader = () => {
 
 /**
  * Creates the footer for the modal and adds it to a specified DOM element.
- * 
+ *
  * @param {HTMLElement} domElement - The DOM element where the footer will be added.
  */
-const createFooter = (domElement) => {
+const createFooter = async (domElement) => {
   let footer = document.createElement("div");
   footer.id = `${props.prefix}-footer-container`;
   setCssProperties(footer, {
@@ -131,8 +136,9 @@ const createFooter = (domElement) => {
     display: "flex",
     justifyContent: "space-between",
   });
-
+  createDropdown(footerLeft);
   createSearchBar(footerLeft);
+  footer.appendChild(footerLeft);
 
   let footerRight = document.createElement("div");
   footerRight.id = `${props.prefix}-footer-right`;
@@ -158,8 +164,6 @@ const createFooter = (domElement) => {
       display: "none",
     })
   );
-
-  footer.appendChild(footerLeft);
   footer.appendChild(footerRight);
 
   domElement.appendChild(footer);
@@ -167,11 +171,11 @@ const createFooter = (domElement) => {
 
 /**
  * Creates an image and applies styles and events to it.
- * 
+ *
  * @param {string} url - The URL of the image.
  * @param {number} idx - The index of the image in the list.
  * @param {boolean} isSelected - Indicates whether the image is selected.
- * 
+ *
  * @returns {HTMLImageElement} The created image.
  */
 export const createImage = (url, idx, isSelected = false) => {
@@ -198,7 +202,7 @@ export const createImage = (url, idx, isSelected = false) => {
 
 /**
  * Creates or retrieves the image grid.
- * 
+ *
  * @returns {HTMLElement} The image grid.
  */
 export const createGridContainer = () => {
@@ -221,13 +225,13 @@ export const createGridContainer = () => {
 
 /**
  * Creates and displays a modal with a title, an image grid, and a footer.
- * 
+ *
  * This function resets the selected image, creates a new modal element,
  * configures the necessary styles and attributes, and calls the function
  * `addImagesToGrid` to populate the image grid with the filtered images.
- * 
+ *
  * @throws {Error} If `props.getTitle()` is not defined or if `createGridContainer()` fails to create a grid.
- * 
+ *
  * @returns {void} - This function does not return anything. It directly modifies the DOM
  *  by adding a modal to the page, integrating an image grid and a title.
  */
@@ -289,6 +293,94 @@ export const createModal = async () => {
   modalbackdrop.className = "dialogBackdrop dialogBackdropOpened";
   document.body.appendChild(modalbackdrop);
   document.body.appendChild(modal);
-  adjustResponsive();
-  eventListener();
+
+  setTimeout(() => {
+    adjustResponsive();
+    eventListener();
+  }, 1000);
+};
+
+/**
+ * Creates a dropdown menu with Jellyfin styling.
+ *
+ * @param {Object} options - Dropdown configuration options.
+ * @param {string} [options.id='createDropdown'] - The ID of the dropdown.
+ * @param {string} [options.labelText='Select an option'] - The label text for the dropdown.
+ * @param {Array<{value: string, text: string}>} [options.items=[]] - Array of dropdown items with value and text properties.
+ * @param {string} [options.defaultValue=''] - The default selected value.
+ * @param {function(string): void} [options.onChange=() => ({})] - The callback function to execute when selection changes.
+ *
+ * @returns {HTMLElement} The dropdown container with all elements.
+ */
+export const createDropdown = async (domElement) => {
+  // Add the dropdown to a DOM element
+
+  let idx = `${props.prefix}-dropdown-filter`;
+  let dropdownExist = document.getElementById(idx);
+  if (dropdownExist) {
+    return dropdownExist;
+  }
+
+  // Create container for dropdown
+  let dropdownContainer = document.createElement("div");
+  dropdownContainer.id = idx;
+  dropdownContainer.className = `${props.prefix}-dropdown-container`;
+  setCssProperties(dropdownContainer, { width: "45%" });
+
+  // Create label
+  let dropdownLabel = document.createElement("label");
+  dropdownLabel.classList.add(
+    "inputLabel",
+    "inputLabel-float",
+    "inputLabelUnfocused"
+  );
+  dropdownLabel.setAttribute("for", `${props.prefix}-dropdown-select-filter`);
+  dropdownLabel.textContent = props.getFilterLabel();
+
+  // Create select element
+  let select = document.createElement("select");
+  select.id = `${props.prefix}-dropdown-select-filter`;
+  select.classList.add("emby-select");
+  const folders_names = await tryLoadJson(props.getSrcCatImages());
+  const defaultValue = props.getDefaultOptionLabel();
+  // Add options to select
+  [defaultValue, ...folders_names].forEach((item) => {
+    let option = document.createElement("option");
+    option.value = item;
+    option.textContent = item;
+    if (item === defaultValue) {
+      option.selected = true;
+    }
+    select.appendChild(option);
+  });
+
+  // Style the select element
+  setCssProperties(select, {
+    width: "100%",
+  });
+
+  // Append elements to container
+  dropdownContainer.appendChild(dropdownLabel);
+  dropdownContainer.appendChild(select);
+
+  // Add CSS for focus effects to match Jellyfin styling
+  select.addEventListener("focus", () => {
+    dropdownLabel.classList.remove("inputLabelUnfocused");
+    dropdownLabel.classList.add("inputLabelFocused");
+  });
+
+  select.addEventListener("blur", () => {
+    if (!select.value) {
+      dropdownLabel.classList.remove("inputLabelFocused");
+      dropdownLabel.classList.add("inputLabelUnfocused");
+    }
+  });
+
+  // If a default value is set, make sure label is styled correctly
+  if (defaultValue) {
+    dropdownLabel.classList.remove("inputLabelUnfocused");
+    dropdownLabel.classList.add("inputLabelFocused");
+  }
+
+  domElement.appendChild(dropdownContainer);
 };

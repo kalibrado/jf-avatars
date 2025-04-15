@@ -60,6 +60,7 @@ const observeDOMChanges = () => {
 
   log("Navigation to userprofile detected.");
   loadLanguage().then(() => {
+    
     // Create a MutationObserver instance
     const observer = new MutationObserver(callback);
     observer.observe(targetNode, config); // Start observing

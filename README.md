@@ -1,5 +1,7 @@
 # js-avatars
 
+![Translation Status](https://img.shields.io/badge/translate-ready-brightgreen)
+
 ## Description
 
 **js-avatars** is a JavaScript library that allows users to select avatars from an image gallery in a **Jellyfin** compatible environment. The application provides a user-friendly interface via a custom modal, facilitating the selection of profile images from an organized collection.
@@ -16,6 +18,19 @@ Special thanks to [BobHasNoSoul](https://github.com/BobHasNoSoul/jellyfin-avatar
 - **Visual State Management**: Selected images are displayed in color while unselected ones appear in grayscale.
 - **Internationalization**: Automatic language detection without needing CSS. The application dynamically loads the correct language based on the user's preferences.
 - **Integration with Jellyfin**: Seamlessly integrates with Jellyfin themes, providing a cohesive experience.
+  
+### 🌐 Available Languages
+
+The application currently supports the following languages:
+
+| Flag | Language   | Code |
+| ---- | ---------- | ---- |
+| 🇬🇧    | English    | `en` |
+| 🇪🇸    | Spanish    | `es` |
+| 🇫🇷    | French     | `fr` |
+| 🇮🇹    | Italian    | `it` |
+| 🇵🇹    | Portuguese | `pt` |
+| 🇹🇷    | Turkish    | `tr` |
 
 ## Screenshots
 

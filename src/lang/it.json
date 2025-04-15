@@ -3,5 +3,7 @@
   "search-label": "Cerca un avatar...",
   "btn-cancel": "Annulla",
   "btn-validate": "Convalida",
-  "btn-show": "Altri avatar"
+  "btn-show": "Altri avatar",
+  "filter-label": "Filtra per categoria",
+  "default-option": "Tutti"
 }

@@ -94,6 +94,10 @@ const observer = new IntersectionObserver((entries, observer) => {
 export const eventListener = () => {
   /** @type {HTMLInputElement} */
   let searchBar = document.querySelector(`#${props.prefix}-search-input`);
+  let dropdown = document.querySelector(
+    `#${props.prefix}-dropdown-select-filter`
+  );
+
   /**
    * @type {NodeListOf<HTMLImageElement>}
    * Collection of images to lazy load.
@@ -110,8 +114,8 @@ export const eventListener = () => {
    */
   const applySearchAndFilters = async (event) => {
     /** @type {string} */
-    let searchTerm = searchBar?.value?.toLowerCase();
-
+    let searchTerm = event.target?.value?.toLowerCase();
+    console.log("Search term:", searchTerm);
     // Show loading indicator
     showRippleLoader();
 
@@ -124,6 +128,8 @@ export const eventListener = () => {
       !searchTerm || searchTerm.trim() === ""
         ? allSrcImages
         : allSrcImages.filter((img) => {
+            console.log("Image URL:", img);
+            console.log("Search term:", searchTerm);
             const url = img.url || "";
             return url.toLowerCase().includes(searchTerm.toLowerCase());
           });
@@ -158,6 +164,8 @@ export const eventListener = () => {
 
   // Listener for input in the search bar
   searchBar.addEventListener("input", applySearchAndFilters);
+
+  dropdown.addEventListener("change", applySearchAndFilters);
 
   // Event listener for adjusting layout when the window is resized
   window.addEventListener("resize", adjustResponsive);

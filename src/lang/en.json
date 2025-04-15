@@ -3,5 +3,7 @@
   "search-label": "Search for an avatar...",
   "btn-cancel": "Cancel",
   "btn-validate": "Validate",
-  "btn-show": "More Avatars"
+  "btn-show": "More Avatars",
+  "filter-label": "Filter by category",
+  "default-option": "All"
 }

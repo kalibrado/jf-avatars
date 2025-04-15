@@ -3,5 +3,7 @@
   "search-label": "Bir avatar arayın...",
   "btn-cancel": "İptal",
   "btn-validate": "Onayla",
-  "btn-show": "Daha fazla avatar"
+  "btn-show": "Daha fazla avatar",
+  "filter-label": "Kategorilere göre filtrele",
+  "default-option": "Hepsi"
 }
