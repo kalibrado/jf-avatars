@@ -257,9 +257,8 @@ export const addImagesToGrid = async (
 
 export const loadSrcImages = async () => {
   let pathCustom = props.getSrcImages();
-  let data = [];
 
-  // Vérifier si les données sont dans le localStorage
+  // Check if data is in localStorage
   const storageKey = `${props.prefix}-srcImages`;
   const storedData = localStorage.getItem(storageKey);
 
@@ -269,7 +268,7 @@ export const loadSrcImages = async () => {
       const storedDate = new Date(parsedData.timestamp);
       const currentDate = new Date();
 
-      // Vérifier si les données ont moins d'un jour
+      // Check if data is less than one day old
       const oneDayInMs = 24 * 60 * 60 * 1000;
       if (
         currentDate - storedDate < oneDayInMs &&
@@ -280,35 +279,29 @@ export const loadSrcImages = async () => {
         );
         return parsedData.data;
       }
-      // Sinon, les données sont périmées et seront rechargées
+      // Otherwise, data is expired and will be reloaded
     } catch (e) {
       log("Error parsing stored data:", e);
-      // En cas d'erreur de parsing, continuer et recharger les données
+      // In case of parsing error, continue and reload data
     }
   }
 
-  // Charger les données depuis l'URL
+  // Load data from URL
   try {
-    const response = await tryLoadJson(pathCustom);
-    if (!response.ok) {
-      throw new Error("Fail to load srcImages");
-    }
-
-    data = await response.json();
+    const data = await tryLoadJson(pathCustom);
     log(`srcImages loaded ${data.length}`);
 
-    // Sauvegarder les données dans le localStorage avec un timestamp
     const storageData = {
       src: pathCustom,
       timestamp: new Date().toISOString(),
-      data: data,
+      data,
     };
 
     localStorage.setItem(storageKey, JSON.stringify(storageData));
 
     return data;
   } catch (error) {
-    log("Erreur :", error);
+    log("Error:", error);
     return [];
   }
 };
