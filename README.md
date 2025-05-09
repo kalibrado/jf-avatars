@@ -1,7 +1,7 @@
 # js-avatars
 
 ![Translation Status](https://img.shields.io/badge/translate-ready-brightgreen)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.2.1-blue)
 
 ## Description
 
