@@ -1,15 +1,15 @@
-# js-avatars
+# jf-avatars
 
 ![Translation Status](https://img.shields.io/badge/translate-ready-brightgreen)
 ![Version](https://img.shields.io/badge/version-2.2.1-blue)
 
 ## Description
 
-**js-avatars** is a JavaScript library that allows users to select avatars from an image gallery in a **Jellyfin** compatible environment. The application provides a user-friendly interface via a custom modal, facilitating the selection of profile images from an organized collection.
+**jf-avatars** is a JavaScript library that allows users to select avatars from an image gallery in a **Jellyfin** compatible environment. The application provides a user-friendly interface via a custom modal, facilitating the selection of profile images from an organized collection.
 
 ## 🚀 Getting Started
 
-To quickly get started with js-avatars, follow these steps:
+To quickly get started with jf-avatars, follow these steps:
 
 1. **Install in your Jellyfin project**:
 
@@ -20,7 +20,7 @@ To quickly get started with js-avatars, follow these steps:
 2. **Basic integration** (add to your index.html):
 
    ```html
-   <script type="module" src="js-avatars/src/js/index.js"></script>
+   <script type="module" src="jf-avatars/src/js/index.js"></script>
    ```
 
 3. **Test the functionality** by accessing the user profile editing page in Jellyfin.
@@ -36,10 +36,10 @@ For more detailed installation instructions, see the [Installation section](#-in
 [![GitHub License](https://img.shields.io/github/license/kalibrado/jf-avatars)](https://github.com/kalibrado/jf-avatars/blob/main/LICENSE)
 
 🔹 **Image Collection Repository**  
-🖼️ [`js-avatars-images`](https://github.com/kalibrado/js-avatars-images)  
-[![GitHub Stars](https://img.shields.io/github/stars/kalibrado/js-avatars-images?style=social)](https://github.com/kalibrado/js-avatars-images/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/kalibrado/js-avatars-images?style=social)](https://github.com/kalibrado/js-avatars-images/network)
-[![GitHub License](https://img.shields.io/github/license/kalibrado/js-avatars-images)](https://github.com/kalibrado/js-avatars-images/blob/main/LICENSE)
+🖼️ [`jf-avatars-images`](https://github.com/kalibrado/jf-avatars-images)  
+[![GitHub Stars](https://img.shields.io/github/stars/kalibrado/jf-avatars-images?style=social)](https://github.com/kalibrado/jf-avatars-images/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/kalibrado/jf-avatars-images?style=social)](https://github.com/kalibrado/jf-avatars-images/network)
+[![GitHub License](https://img.shields.io/github/license/kalibrado/jf-avatars-images)](https://github.com/kalibrado/jf-avatars-images/blob/main/LICENSE)
 
 ## ✨ Features
 
@@ -65,7 +65,7 @@ The application currently supports the following languages:
 
 ## 🖼️ Screenshots
 
-Here are some screenshots demonstrating the functionality and UI of the **js-avatars** project across different devices.
+Here are some screenshots demonstrating the functionality and UI of the **jf-avatars** project across different devices.
 
 ### Desktop View
 
@@ -115,7 +115,7 @@ services:
     image: jellyfin/jellyfin:latest
     container_name: jellyfin
     volumes:
-      - '/path/to/js-avatars:/jellyfin/jellyfin-web/js-avatars'
+      - '/path/to/jf-avatars:/jellyfin/jellyfin-web/jf-avatars'
       - '/path/to/index.html:/jellyfin/jellyfin-web/index.html:ro'
 ```
 
@@ -124,7 +124,7 @@ services:
 In your custom `index.html` (mounted as read-only), add the following line before `</body>`:
 
 ```html
-<script type="module" src="js-avatars/src/js/index.js"></script>
+<script type="module" src="jf-avatars/src/js/index.js"></script>
 ```
 
 > ⚠️ Make sure you edit this file before launching the container, as it's mounted read-only.
@@ -149,7 +149,7 @@ The default web directory varies depending on your system:
 Copy the folder:
 
 ```bash
-sudo cp -r js-avatars /usr/share/jellyfin/web/
+sudo cp -r jf-avatars /usr/share/jellyfin/web/
 ```
 
 #### 3. Edit `index.html`
@@ -157,7 +157,7 @@ sudo cp -r js-avatars /usr/share/jellyfin/web/
 Open `index.html` in the root of the `web/` folder and add:
 
 ```html
-<script type="module" src="js-avatars/src/js/index.js"></script>
+<script type="module" src="jf-avatars/src/js/index.js"></script>
 ```
 
 > 📌 It is recommended to place the line just before `</body>` for clean integration.
@@ -203,14 +203,14 @@ You can integrate the script into your project without direct file copying using
 
 ```javascript
 // Set a custom URL for avatar images
-document.documentElement.style.setProperty('--js-avatars-url-images', 'https://my-server.com/my-avatars/images_metadata.json');
+document.documentElement.style.setProperty('--jf-avatars-url-images', 'https://my-server.com/my-avatars/images_metadata.json');
 ```
 
 #### Integration with custom events
 
 ```javascript
 // Listen for avatar selection event
-document.addEventListener('js-avatars-selected', function(event) {
+document.addEventListener('jf-avatars-selected', function(event) {
   console.log('Avatar selected:', event.detail.imageUrl);
   // Perform additional actions...
 });
@@ -218,15 +218,15 @@ document.addEventListener('js-avatars-selected', function(event) {
 
 ### Image Management
 
-The default images come from the repository [js-avatars-images](https://github.com/kalibrado/js-avatars-images). This repository maintains an organized collection of avatars.
+The default images come from the repository [jf-avatars-images](https://github.com/kalibrado/jf-avatars-images). This repository maintains an organized collection of avatars.
 
 If users wish to use their own images, they can specify a custom image URL using the CSS property:
 
 ```css
---js-avatars-url-images: "https://your-custom-url.com/path/to/images_metadata.json";
+--jf-avatars-url-images: "https://your-custom-url.com/path/to/images_metadata.json";
 ```
 
-To ensure proper functionality, images should follow the naming convention defined in the [images_metadata.json](https://github.com/kalibrado/js-avatars-images/blob/main/images_metadata.json) file.
+To ensure proper functionality, images should follow the naming convention defined in the [images_metadata.json](https://github.com/kalibrado/jf-avatars-images/blob/main/images_metadata.json) file.
 
 ### Language Management
 
@@ -256,9 +256,9 @@ To add a new language, create a JSON file in the appropriate format and place it
 
 ### Are custom avatars supported?
 
-Yes! You can use your own avatars by setting the CSS property `--js-avatars-url-images` to point to your image metadata JSON file.
+Yes! You can use your own avatars by setting the CSS property `--jf-avatars-url-images` to point to your image metadata JSON file.
 
-### Can I use js-avatars without Jellyfin?
+### Can I use jf-avatars without Jellyfin?
 
 While designed for Jellyfin, the script can be adapted to other web applications by modifying the selectors and events in the source code.
 
