@@ -167,6 +167,11 @@ export const onSelectImage = async (src) => {
   const { AccessToken, UserId } = server;
   let DevicId = null;
 
+  // Get the selected user ID from URL hash (since params are after #)
+  const hash = window.location.hash;
+  const hashParams = new URLSearchParams(hash.split('?')[1] || '');
+  const selectedUserId = hashParams.get('userId');
+
   // Loop through all keys in localStorage
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -177,7 +182,8 @@ export const onSelectImage = async (src) => {
   }
 
   const base64Image = await convertImageToBase64(src);
-  fetch(`/Users/${UserId}/Images/Primary`, {
+
+  fetch(`/Users/${selectedUserId}/Images/Primary`, {
     headers: {
       accept: "*/*",
       "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
@@ -193,9 +199,15 @@ export const onSelectImage = async (src) => {
     .finally(() => {
       const backgroundImage = `url('${src}')`;
       setCssProperties(document.getElementById("image"), { backgroundImage });
-      document.querySelector(
-        ".headerUserButtonRound"
-      ).innerHTML = `<div class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound" style="background-image:${backgroundImage};"></div>`;
+
+      // Check if the UserId is the same as the selected user ID.
+      // If it is, update the user profile picture in the corner.
+      if (UserId == selectedUserId) {
+        document.querySelector(
+          ".headerUserButtonRound"
+        ).innerHTML = `<div class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound" style="background-image:${backgroundImage};"></div>`;
+
+      }
       window.localStorage.setItem(`${props.prefix}-selected-img`, src);
       document.getElementById(`${props.prefix}-modal`).remove();
       document.getElementById(`${props.prefix}-backdrop-modal`).remove();
