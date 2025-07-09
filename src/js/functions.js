@@ -119,12 +119,15 @@ export const waitForElement = (
   }, interval);
 };
 
-export const getProfileImageUrl = () =>
-  document
-    .querySelector(
-      'div[class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound"]'
-    )
-    .style.backgroundImage.split('"')[1];
+export const getProfileImageUrl = () => {
+  const element = document.querySelector(
+    'div[class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound"]'
+  );
+  if (element) {
+    return element.style.backgroundImage.split('"')[1];
+  }
+  return null;
+};
 
 /**
  * Applies a filter to an array of image URLs.
@@ -203,9 +206,16 @@ export const onSelectImage = async (src) => {
       // Check if the UserId is the same as the selected user ID.
       // If it is, update the user profile picture in the corner.
       if (UserId == selectedUserId) {
-        document.querySelector(
-          ".headerUserButtonRound"
-        ).innerHTML = `<div class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound" style="background-image:${backgroundImage};"></div>`;
+        const element = document.querySelector(
+          ".headerUserButton"
+        )
+
+        // If a user hasn't had an avatar before, then this class won't exist.
+        if (!element.classList.contains("headerUserButtonRound")) {
+          element.classList.add("headerUserButtonRound");
+        }
+
+        element.innerHTML = `<div class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound" style="background-image:${backgroundImage};"></div>`;
 
       }
       window.localStorage.setItem(`${props.prefix}-selected-img`, src);
@@ -251,7 +261,11 @@ export const addImagesToGrid = async (
     );
   }
 
-  allImage.unshift(createImage(getProfileImageUrl(), `selected`, true));
+  const profileImageUrl = getProfileImageUrl();
+
+  if (profileImageUrl) {
+    allImage.unshift(createImage(profileImageUrl, `selected`, true));
+  }
 
   if (allImage.length > 0) {
     setCssProperties(imgGrid, {
