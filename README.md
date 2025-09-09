@@ -166,6 +166,16 @@ Open `index.html` in the root of the `web/` folder and add:
 
 Once Jellyfin is restarted, the custom avatar selector will load as part of the Jellyfin web interface.
 
+### Plugin Installation
+
+   #### 1. Install the [Custom JavaScript Plugin](https://github.com/johnpc/jellyfin-plugin-custom-javascript/)
+   
+   #### 2. Navigate to Jellyfin dashboard -> plugins -> custom javascript plugin
+   
+   #### 3. Paste contents of the [latest release](https://github.com/kalibrado/jf-avatars/releases/latest)'s `main.js` into the textbox
+   
+   #### 4. Save and restart Jellyfin 
+
 ## 🌐 Remote Integration
 
 You can integrate the script into your project without direct file copying using these methods:
