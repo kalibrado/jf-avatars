@@ -345,25 +345,21 @@ export const createDropdown = (domElement) => {
 
   tryLoadJson(props.getSrcCatImages()).then((folders_names) => {
     const optionAll = props.getDefaultOptionLabel();
-    const defaultValue =
-      folders_names[Math.floor(Math.random() * folders_names.length)];
 
     // Add options to select
     [optionAll, ...folders_names].forEach((item) => {
       let option = document.createElement("option");
       option.value = item;
       option.textContent = item;
-      if (item === defaultValue) {
+      if (item === optionAll) {
         option.selected = true;
         applySearchAndFilters({ target: { value: item } });
       }
       select.appendChild(option);
     });
-    // If a default value is set, make sure label is styled correctly
-    if (defaultValue) {
-      dropdownLabel.classList.remove("inputLabelUnfocused");
-      dropdownLabel.classList.add("inputLabelFocused");
-    }
+    // If "All" is selected, make sure label is styled correctly
+    dropdownLabel.classList.remove("inputLabelUnfocused");
+    dropdownLabel.classList.add("inputLabelFocused");
   });
 
   // Style the select element
