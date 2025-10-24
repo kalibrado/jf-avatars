@@ -77,7 +77,7 @@ const observeDOMChanges = () => {
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     mutation.addedNodes.forEach((node) => {
-      if (node.id === "cssBranding") {
+      if (node.id === "cssBranding" || node.textContent === "Profil") {
         observeDOMChanges();
         observer.disconnect(); // Stop observing once the tag is found
       }
