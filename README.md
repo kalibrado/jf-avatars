@@ -1,8 +1,7 @@
 # jf-avatars
 
 ![Translation Status](https://img.shields.io/badge/translate-ready-brightgreen)
-![Version](https://img.shields.io/badge/version-2.2.1-blue)
-
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/kalibrado/jf-avatars?color=blue)
 ## Description
 
 **jf-avatars** is a JavaScript library that allows users to select avatars from an image gallery in a **Jellyfin** compatible environment. The application provides a user-friendly interface via a custom modal, facilitating the selection of profile images from an organized collection.
