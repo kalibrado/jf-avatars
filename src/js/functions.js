@@ -186,7 +186,7 @@ export const onSelectImage = async (src) => {
 
   const base64Image = await convertImageToBase64(src);
 
-  fetch(`/Users/${selectedUserId}/Images/Primary`, {
+  fetch(`../Users/${selectedUserId}/Images/Primary`, {
     headers: {
       accept: "*/*",
       "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
@@ -349,7 +349,7 @@ export const loadLanguage = async () => {
    * @returns {Promise<Object|null>} The loaded translations if successful, null otherwise.
    */
   const loadJson = async (lang) => {
-    const localUrl = `${window.location.origin}/web/jf-avatars/src/lang/${lang}.json`;
+    const localUrl = `jf-avatars/src/lang/${lang}.json`;
     const fallbackUrl = `${props.fallbackUrl}/${lang}.json`;
 
     // Try loading from local URL first, then from GitHub if failed
