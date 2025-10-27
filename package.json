@@ -1,6 +1,6 @@
 {
   "name": "jf-avatars",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "main": "webpack.config.js",
   "scripts": {
     "build": "webpack",
