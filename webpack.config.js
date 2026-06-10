@@ -1,7 +1,16 @@
 const path = require("path");
+const webpack = require("webpack");
 
 module.exports = {
   entry: "./src/js/index.js",
+  plugins: [
+    new webpack.DefinePlugin({
+      APP_VERSION: JSON.stringify(
+        process.env.GITHUB_REF_NAME || "dev"
+      )
+    })
+  ],
+  
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
