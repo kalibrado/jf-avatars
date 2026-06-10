@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Nom du tag (ex: v2.4.0)'
+        description: 'Nom du tag (ex: 2.4.0)'
         required: true
 
 jobs:
@@ -39,12 +39,39 @@ jobs:
       - name: Install node modules
         run: npm ci
 
+      - name: Check package.json BEFORE version update
+        id: check_before
+        run: |
+          echo "=== Version AVANT mise à jour ==="
+          PREV_VERSION=$(node -p "require('./package.json').version")
+          echo "prev_version=$PREV_VERSION" >> $GITHUB_OUTPUT
+          echo "$PREV_VERSION"
+
       - name: Update version in package.json
         run: |
-          npm version ${{ steps.tag_step.outputs.tag }} --allow-same-version --no-git-tag-version
+          VERSION=${{ steps.tag_step.outputs.tag }}
+          echo "Tentative de mise à jour vers : $VERSION"
+          npm version $VERSION --allow-same-version --no-git-tag-version || exit 1
+
+      - name: Check package.json AFTER version update
+        id: check_after
+        run: |
+          echo "=== Version APRÈS mise à jour ==="
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "$NEW_VERSION"
+
+          # Vérifie si la version a effectivement changé
+          if [ "$PREV_VERSION" != "$NEW_VERSION" ]; then
+            echo "change_detected=true" >> $GITHUB_OUTPUT
+            echo "Version a été modifiée avec succès !"
+          else
+            echo "change_detected=false" >> $GITHUB_OUTPUT
+            echo "::warning:: La version n'a pas changé, peut-être déjà à $NEW_VERSION"
+          fi
 
       - name: Commit package.json version update
-        id: commit_version
+        if: steps.check_after.outputs.change_detected == 'true'
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -52,13 +79,18 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.tag_step.outputs.tag }} [skip ci]"
           VERSION_COMMIT_SHA=$(git rev-parse HEAD)
           echo "version_commit=$VERSION_COMMIT_SHA" >> $GITHUB_OUTPUT
+          echo "commit_sha=$VERSION_COMMIT_SHA" >> $GITHUB_OUTPUT
 
-      - name: Create/Update tag
+      - name: Create/Update tag on correct commit
+        if: steps.check_after.outputs.change_detected == 'true'
         run: |
-          # Supprimer le tag s'il existe déjà localement
+          # Supprimer le tag s'il existe déjà localement ou sur remote
           git tag -d ${{ steps.tag_step.outputs.tag }} 2>/dev/null || true
-          # Créer le tag sur le nouveau commit
+          
+          # Le tag pointe sur le commit avec le package.json mis à jour
           git tag -a ${{ steps.tag_step.outputs.tag }} -m "Release ${{ steps.tag_step.outputs.tag }}"
+          
+          # Push le tag avec force (remplace l'ancien si nécessaire)
           git push origin ${{ steps.tag_step.outputs.tag }} --force
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -70,17 +102,22 @@ jobs:
         run: npm run docs
 
       - name: Create GitHub Release
+        if: success()
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag_step.outputs.tag }}
           generate_release_notes: true
           files: ./dist/main.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Upload documentation to GitHub Pages
+        if: success()
         uses: actions/upload-pages-artifact@v3
         with:
           path: "./docs/jf-avatars/${{ steps.tag_step.outputs.tag }}"
 
       - name: Deploy to GitHub Pages
         id: deployment
+        if: success()
         uses: actions/deploy-pages@v4
