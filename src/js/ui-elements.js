@@ -116,8 +116,9 @@ export const showRippleLoader = () => {
  * Creates the footer for the modal and adds it to a specified DOM element.
  *
  * @param {HTMLElement} domElement - The DOM element where the footer will be added.
+ * @param {string} randomCategory - The randomly selected category for filtering images.
  */
-const createFooter = async (domElement) => {
+const createFooter = async (domElement, randomCategory) => {
   let footer = document.createElement("div");
   footer.id = `${props.prefix}-footer-container`;
   setCssProperties(footer, {
@@ -137,7 +138,7 @@ const createFooter = async (domElement) => {
     justifyContent: "space-between",
   });
   createRandomBtn(footerLeft);
-  createDropdown(footerLeft);
+  createDropdown(footerLeft, randomCategory);
   createSearchBar(footerLeft);
 
   footer.appendChild(footerLeft);
@@ -267,7 +268,7 @@ export const createModal = async () => {
   modal.setAttribute("data-removeonclose", "true");
   setCssProperties(modal, {
     animation: "160ms ease-out 0s 1 normal both running scaleup",
-    margin: "95px 50px 0 50px",
+    margin: "3em",
   });
   modal.id = `${props.prefix}-modal`;
 
@@ -286,9 +287,18 @@ export const createModal = async () => {
 
   let imgGrid = createGridContainer();
   content.appendChild(imgGrid);
+  // gen ranmdon filter option category
+  const categories = await tryLoadJson(props.getSrcCatImages());
+  const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+  log("Random category:", randomCategory);
 
+  srcImages = srcImages.filter((img) => {
+    let folder = img.folder;
+    return folder.toLowerCase().includes(randomCategory.toLowerCase());
+  });
+  log(`Filtered images count for category "${randomCategory}":`, srcImages.length);
   addImagesToGrid(srcImages, imgGrid);
-  createFooter(content);
+  createFooter(content, randomCategory);
 
   modal.appendChild(content);
   let modalbackdrop = document.createElement("div");
@@ -310,10 +320,10 @@ export const createModal = async () => {
  * @param {Array<{value: string, text: string}>} [options.items=[]] - Array of dropdown items with value and text properties.
  * @param {string} [options.defaultValue=''] - The default selected value.
  * @param {function(string): void} [options.onChange=() => ({})] - The callback function to execute when selection changes.
- *
+ * @param {string} randomCategory - The randomly selected category for filtering images.
  * @returns {HTMLElement} The dropdown container with all elements.
  */
-export const createDropdown = (domElement) => {
+export const createDropdown = (domElement, randomCategory) => {
   // Add the dropdown to a DOM element
 
   let idx = `${props.prefix}-dropdown-filter`;
@@ -343,25 +353,24 @@ export const createDropdown = (domElement) => {
   select.id = `${props.prefix}-dropdown-select-filter`;
   select.classList.add("emby-select");
 
-  tryLoadJson(props.getSrcCatImages()).then((folders_names) => {
-    const optionAll = props.getDefaultOptionLabel();
+tryLoadJson(props.getSrcCatImages()).then((folders_names) => {
+  const optionAll = props.getDefaultOptionLabel();
 
-    // Add options to select
-    [optionAll, ...folders_names].forEach((item) => {
-      let option = document.createElement("option");
-      option.value = item;
-      option.textContent = item;
-      if (item === optionAll) {
-        option.selected = true;
-        applySearchAndFilters({ target: { value: item } });
-      }
-      select.appendChild(option);
-    });
-    // If "All" is selected, make sure label is styled correctly
-    dropdownLabel.classList.remove("inputLabelUnfocused");
-    dropdownLabel.classList.add("inputLabelFocused");
+  [optionAll, ...folders_names].forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item;
+    option.textContent = item;
+
+    if (item === randomCategory) {
+      option.selected = true;
+    }
+
+    select.appendChild(option);
   });
 
+  dropdownLabel.classList.remove("inputLabelUnfocused");
+  dropdownLabel.classList.add("inputLabelFocused");
+});
   // Style the select element
   setCssProperties(select, {
     width: "100%",

@@ -132,3 +132,4 @@ dist
 
 docs/
 package-lock.json
+server.py
