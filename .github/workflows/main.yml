@@ -1,20 +1,15 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - '*'
   workflow_dispatch:
     inputs:
       tag_name:
         description: 'Nom du tag (ex: v2.4.0)'
         required: true
-        default: ''
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    
     permissions:
       contents: write
       pages: write
@@ -28,21 +23,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false 
-          fetch-depth: 0 
+          token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
 
       - name: Determine Tag Name
         id: tag_step
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            TAG="${{ github.event.inputs.tag_name }}"
-            # Nettoyage optionnel pour forcer le format vX.X.X si l'utilisateur oublie 'v'
-            if [[ ! "$TAG" =~ ^v ]]; then
-              TAG="v$TAG"
-              echo "Tag reformaté en $TAG"
-            fi
-          else
-            TAG="${{ github.ref_name }}"
+          TAG="${{ github.event.inputs.tag_name }}"
+          if [[ ! "$TAG" =~ ^v ]]; then
+            TAG="v$TAG"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "TAG_NAME=$TAG" >> $GITHUB_ENV
@@ -52,13 +41,27 @@ jobs:
 
       - name: Update version in package.json
         run: |
-          # Met à jour le package.json localement sans toucher au git
-          # Le --no-git-tag-version évite que npm crée un tag git ici
-          npm version ${{ steps.tag_step.outputs.tag }} --allow-since-version --no-git-tag-version --json > /dev/null
-          
-          # Vérification visuelle (optionnel)
-          echo "Version mise à jour dans package.json"
-          cat package.json | grep version
+          npm version ${{ steps.tag_step.outputs.tag }} --allow-same-version --no-git-tag-version
+
+      - name: Commit package.json version update
+        id: commit_version
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.tag_step.outputs.tag }} [skip ci]"
+          VERSION_COMMIT_SHA=$(git rev-parse HEAD)
+          echo "version_commit=$VERSION_COMMIT_SHA" >> $GITHUB_OUTPUT
+
+      - name: Create/Update tag
+        run: |
+          # Supprimer le tag s'il existe déjà localement
+          git tag -d ${{ steps.tag_step.outputs.tag }} 2>/dev/null || true
+          # Créer le tag sur le nouveau commit
+          git tag -a ${{ steps.tag_step.outputs.tag }} -m "Release ${{ steps.tag_step.outputs.tag }}"
+          git push origin ${{ steps.tag_step.outputs.tag }} --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Build the project
         run: npm run build
@@ -72,9 +75,6 @@ jobs:
           tag_name: ${{ steps.tag_step.outputs.tag }}
           generate_release_notes: true
           files: ./dist/main.js
-          fail_on_unmatched_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Upload documentation to GitHub Pages
         uses: actions/upload-pages-artifact@v3
@@ -84,14 +84,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-
-      # - name: Commit and Push version update
-      #   if: ${{ github.event_name == 'push' }} # On évite de push deux fois en cas de workflow_dispatch manuel où le tag est déjà créé
-      #   run: |
-      #     git config user.name "GitHub Actions"
-      #     git config user.email "actions@github.com"
-      #     git add package.json
-      #     git commit -m "chore: update version to ${{ steps.tag_step.outputs.tag }} [skip ci]"
-      #     # Utilisation du PAT_TOKEN pour le push
-      #     git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
