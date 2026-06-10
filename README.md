@@ -2,29 +2,128 @@
 
 ![Translation Status](https://img.shields.io/badge/translate-ready-brightgreen)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/kalibrado/jf-avatars?color=blue)
+
 ## Description
 
 **jf-avatars** is a JavaScript library that allows users to select avatars from an image gallery in a **Jellyfin** compatible environment. The application provides a user-friendly interface via a custom modal, facilitating the selection of profile images from an organized collection.
 
 ## 🚀 Getting Started
 
-To quickly get started with jf-avatars, follow these steps:
+The easiest and recommended way to install **jf-avatars** is through the **Jellyfin JavaScript Injector** plugin.
 
-1. **Install in your Jellyfin project**:
+### Quick Installation
 
-   ```bash
-   git clone https://github.com/kalibrado/jf-avatars.git
-   ```
+1. Install the **Jellyfin JavaScript Injector** plugin:
+   <https://github.com/n00bcodr/Jellyfin-JavaScript-Injector>
 
-2. **Basic integration** (add to your index.html):
+2. Restart Jellyfin.
 
-   ```html
-   <script type="module" src="jf-avatars/src/js/index.js"></script>
-   ```
+3. Navigate to:
 
-3. **Test the functionality** by accessing the user profile editing page in Jellyfin.
+```text
+Dashboard → Plugins → JavaScript Injector
+```
 
-For more detailed installation instructions, see the [Installation section](#-integration-with-jellyfin-docker-and-non-docker-setups).
+1. Create a new script:
+
+**Name**
+
+```text
+JF-AVATARS
+```
+
+**Script**
+
+```javascript
+(() => {
+  const CONFIG = {
+    primary: "https://cdn.jsdelivr.net/gh/kalibrado/jf-avatars@2.3.3/main.js",
+    fallback: "https://raw.githubusercontent.com/kalibrado/jf-avatars/2.3.3/main.js",
+    timeout: 8000,
+    retries: 2,
+  };
+
+  console.log("[JF-AVATARS] injector booting...");
+
+  function loadScript(url, attempt = 0) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.type = "module";
+      script.defer = true;
+      script.src = url;
+
+      const timer = setTimeout(() => {
+        script.remove();
+        reject(new Error("Timeout loading: " + url));
+      }, CONFIG.timeout);
+
+      script.onload = () => {
+        clearTimeout(timer);
+        console.log("[JF-AVATARS] loaded:", url);
+        resolve();
+      };
+
+      script.onerror = () => {
+        clearTimeout(timer);
+        script.remove();
+        reject(new Error("Failed loading: " + url));
+      };
+
+      document.head.appendChild(script);
+    }).catch(async (err) => {
+      console.warn("[JF-AVATARS] error:", err.message);
+
+      if (attempt < CONFIG.retries) {
+        console.log(`[JF-AVATARS] retry ${attempt + 1}/${CONFIG.retries}`);
+        return loadScript(url, attempt + 1);
+      }
+
+      throw err;
+    });
+  }
+
+  function init() {
+    const start = async () => {
+      try {
+        await loadScript(CONFIG.primary);
+      } catch (e) {
+        console.warn("[JF-AVATARS] primary failed, fallback...");
+        try {
+          await loadScript(CONFIG.fallback);
+        } catch (e2) {
+          console.error("[JF-AVATARS] all sources failed:", e2);
+        }
+      }
+    };
+
+    if (document.readyState === "complete") {
+      start();
+    } else {
+      window.addEventListener("load", start);
+    }
+  }
+
+  init();
+})();
+```
+
+1. Save the script.
+
+2. Navigate to:
+
+```text
+Dashboard → Scheduled Tasks
+```
+
+1. Run:
+
+```text
+JavaScript Injector Startup
+```
+
+1. Refresh Jellyfin and open your profile settings.
+
+The Avatar Gallery button should now be available.
 
 ## 📦 Repositories
 
@@ -89,115 +188,6 @@ The project is structured as follows:
 - **props.js**: Dynamic properties and application state (selected image).
 - **style.js**: Functions to adjust the modal's style based on screen size.
 - **ui-elements.js**: Generation of user interface elements (buttons, dropdown, image grid).
-
-## 🔧 Installation
-
-### 🧩 Integration with Jellyfin (Docker and non-Docker setups)
-
-This project can be integrated into **Jellyfin** in both **Docker-based** and **native installations**.
-
-### 🐳 Docker Setup
-
-#### 1. Clone the repository
-
-```bash
-git clone https://github.com/kalibrado/jf-avatars.git
-```
-
-#### 2. Mount the volume in your Jellyfin container
-
-In your `docker-compose.yml` file, add the following volume to the Jellyfin service:
-
-```yaml
-services:
-  jellyfin:
-    image: jellyfin/jellyfin:latest
-    container_name: jellyfin
-    volumes:
-      - '/path/to/jf-avatars:/jellyfin/jellyfin-web/jf-avatars'
-      - '/path/to/index.html:/jellyfin/jellyfin-web/index.html:ro'
-```
-
-#### 3. Edit `index.html`
-
-In your custom `index.html` (mounted as read-only), add the following line before `</body>`:
-
-```html
-<script type="module" src="jf-avatars/src/js/index.js"></script>
-```
-
-> ⚠️ Make sure you edit this file before launching the container, as it's mounted read-only.
-
----
-
-### 💻 Native Installation (Non-Docker)
-
-#### 1. Clone the repository
-
-```bash
-git clone https://github.com/kalibrado/jf-avatars.git
-```
-
-#### 2. Copy the folder into Jellyfin's web directory
-
-The default web directory varies depending on your system:
-
-- **Linux**: `/usr/share/jellyfin/web` or `/usr/lib/jellyfin/web`
-- **Windows**: `C:\Program Files\Jellyfin\Server\jellyfin-web`
-
-Copy the folder:
-
-```bash
-sudo cp -r jf-avatars /usr/share/jellyfin/web/
-```
-
-#### 3. Edit `index.html`
-
-Open `index.html` in the root of the `web/` folder and add:
-
-```html
-<script type="module" src="jf-avatars/src/js/index.js"></script>
-```
-
-> 📌 It is recommended to place the line just before `</body>` for clean integration.
-
----
-
-Once Jellyfin is restarted, the custom avatar selector will load as part of the Jellyfin web interface.
-
-### Plugin Installation
-
-   #### 1. Install the [Custom JavaScript Plugin](https://github.com/johnpc/jellyfin-plugin-custom-javascript/)
-   
-   #### 2. Navigate to Jellyfin dashboard -> plugins -> custom javascript plugin
-   
-   #### 3. Paste contents of the [latest release](https://github.com/kalibrado/jf-avatars/releases/latest)'s `main.js` into the textbox
-   
-   #### 4. Save and restart Jellyfin 
-
-## 🌐 Remote Integration
-
-You can integrate the script into your project without direct file copying using these methods:
-
-1. **Direct Injection in `index.html`**:
-
-   ```html
-   <script
-     type="module"
-     src="https://github.com/kalibrado/jf-avatars/releases/download/{version}/main.js"
-     defer
-   ></script>
-   ```
-
-2. **Injection via Nginx**:
-
-   ```nginx
-   location / {
-       proxy_pass http://backend_server;  # Reverse proxy to your backend
-       sub_filter '</body>' '<script type="module" src="https://github.com/kalibrado/jf-avatars/releases/download/{version}/main.js" defer></script></body>';
-       sub_filter_once on;  # Apply the modification only once
-   }
-   ```
 
 ### General Functioning
 
