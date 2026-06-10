@@ -111,6 +111,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
+      - name: Check generated docs folder
+        run: |
+          echo "=== Contenu du dossier docs ==="
+          ls -la docs/ || echo "Dossier docs inexistant !"
+          
+          if [ -d "docs/jf-avatars" ]; then
+            echo "=== Sous-dossiers de jf-avatars ==="
+            ls -la docs/jf-avatars/
+          else
+            echo "::error:: Le dossier 'docs/jf-avatars' n'existe pas !"
+            exit 1
+          fi
+
       - name: Upload documentation to GitHub Pages
         if: success()
         uses: actions/upload-pages-artifact@v3
