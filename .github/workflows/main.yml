@@ -29,17 +29,8 @@ jobs:
       - name: Determine Tag Name
         id: tag_step
         run: |
-          TAG_RAW="${{ github.event.inputs.tag_name }}"
-          
-          # Pour GIT TAG et RELEASE : Ajoute 'v' si absent
-          TAG_GIT="$TAG_RAW"
-          if [[ ! "$TAG_GIT" =~ ^v ]]; then
-            TAG_GIT="v$TAG_GIT"
-          fi
-          
-          # Pour JSDOC / DOCS : Utilise le tag RAW (sans v, car jsdoc ne l'ajoute pas)
-          TAG_DOCS="$TAG_RAW"
-          
+          TAG_GIT="${{ github.event.inputs.tag_name }}"
+          TAG_DOCS="$TAG_GIT"
           echo "tag_git=$TAG_GIT" >> $GITHUB_OUTPUT
           echo "tag_docs=$TAG_DOCS" >> $GITHUB_OUTPUT
           echo "TAG_NAME=$TAG_GIT" >> $GITHUB_ENV
