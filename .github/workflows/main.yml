@@ -29,12 +29,20 @@ jobs:
       - name: Determine Tag Name
         id: tag_step
         run: |
-          TAG="${{ github.event.inputs.tag_name }}"
-          if [[ ! "$TAG" =~ ^v ]]; then
-            TAG="v$TAG"
+          TAG_RAW="${{ github.event.inputs.tag_name }}"
+          
+          # Pour GIT TAG et RELEASE : Ajoute 'v' si absent
+          TAG_GIT="$TAG_RAW"
+          if [[ ! "$TAG_GIT" =~ ^v ]]; then
+            TAG_GIT="v$TAG_GIT"
           fi
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "TAG_NAME=$TAG" >> $GITHUB_ENV
+          
+          # Pour JSDOC / DOCS : Utilise le tag RAW (sans v, car jsdoc ne l'ajoute pas)
+          TAG_DOCS="$TAG_RAW"
+          
+          echo "tag_git=$TAG_GIT" >> $GITHUB_OUTPUT
+          echo "tag_docs=$TAG_DOCS" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=$TAG_GIT" >> $GITHUB_ENV
 
       - name: Install node modules
         run: npm ci
@@ -49,7 +57,7 @@ jobs:
 
       - name: Update version in package.json
         run: |
-          VERSION=${{ steps.tag_step.outputs.tag }}
+          VERSION=${{ steps.tag_step.outputs.tag_git }}
           echo "Tentative de mise à jour vers : $VERSION"
           npm version $VERSION --allow-same-version --no-git-tag-version || exit 1
 
@@ -61,7 +69,6 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "$NEW_VERSION"
 
-          # Vérifie si la version a effectivement changé
           if [ "$PREV_VERSION" != "$NEW_VERSION" ]; then
             echo "change_detected=true" >> $GITHUB_OUTPUT
             echo "Version a été modifiée avec succès !"
@@ -76,22 +83,16 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add package.json
-          git commit -m "chore: bump version to ${{ steps.tag_step.outputs.tag }} [skip ci]"
+          git commit -m "chore: bump version to ${{ steps.tag_step.outputs.tag_git }} [skip ci]"
           VERSION_COMMIT_SHA=$(git rev-parse HEAD)
-          echo "version_commit=$VERSION_COMMIT_SHA" >> $GITHUB_OUTPUT
           echo "commit_sha=$VERSION_COMMIT_SHA" >> $GITHUB_OUTPUT
 
       - name: Create/Update tag on correct commit
         if: steps.check_after.outputs.change_detected == 'true'
         run: |
-          # Supprimer le tag s'il existe déjà localement ou sur remote
-          git tag -d ${{ steps.tag_step.outputs.tag }} 2>/dev/null || true
-          
-          # Le tag pointe sur le commit avec le package.json mis à jour
-          git tag -a ${{ steps.tag_step.outputs.tag }} -m "Release ${{ steps.tag_step.outputs.tag }}"
-          
-          # Push le tag avec force (remplace l'ancien si nécessaire)
-          git push origin ${{ steps.tag_step.outputs.tag }} --force
+          git tag -d ${{ steps.tag_step.outputs.tag_git }} 2>/dev/null || true
+          git tag -a ${{ steps.tag_step.outputs.tag_git }} -m "Release ${{ steps.tag_step.outputs.tag_git }}"
+          git push origin ${{ steps.tag_step.outputs.tag_git }} --force
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
@@ -101,36 +102,22 @@ jobs:
       - name: Generate documentation
         run: npm run docs
 
+      - name: Upload documentation to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # ✅ CORRIGÉ : On utilise tag_docs (sans 'v') au lieu de tag_git
+          path: "./docs/jf-avatars/${{ steps.tag_step.outputs.tag_docs }}"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
       - name: Create GitHub Release
-        if: success()
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag_step.outputs.tag }}
+          # ✅ Le tag de release porte bien le 'v' pour GitHub
+          tag_name: ${{ steps.tag_step.outputs.tag_git }}
           generate_release_notes: true
           files: ./dist/main.js
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-
-      - name: Check generated docs folder
-        run: |
-          echo "=== Contenu du dossier docs ==="
-          ls -la docs/ || echo "Dossier docs inexistant !"
-          
-          if [ -d "docs/jf-avatars" ]; then
-            echo "=== Sous-dossiers de jf-avatars ==="
-            ls -la docs/jf-avatars/
-          else
-            echo "::error:: Le dossier 'docs/jf-avatars' n'existe pas !"
-            exit 1
-          fi
-
-      - name: Upload documentation to GitHub Pages
-        if: success()
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./docs/jf-avatars/${{ steps.tag_step.outputs.tag }}"
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        if: success()
-        uses: actions/deploy-pages@v4
