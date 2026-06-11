@@ -37,8 +37,8 @@ JF-AVATARS
 ```javascript
 (() => {
   const CONFIG = {
-    primary: "https://cdn.jsdelivr.net/gh/kalibrado/jf-avatars@2.3.3/main.js",
-    fallback: "https://raw.githubusercontent.com/kalibrado/jf-avatars/2.3.3/main.js",
+    primary: "https://cdn.jsdelivr.net/gh/kalibrado/jf-avatars@latest/dist/main.js",
+    fallback: "https://raw.githubusercontent.com/kalibrado/jf-avatars/main/dist/main.js",
     timeout: 8000,
     retries: 2,
   };

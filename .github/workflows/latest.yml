@@ -1,0 +1,50 @@
+name: Release Latest
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  latest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install node modules
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Move latest tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          git tag -f latest
+          git push origin latest --force
+
+      - name: Create or update latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes || true
+
+          gh release create latest \
+            ./dist/main.js \
+            --title "latest" \
+            --notes "Latest build from main" \
+            --latest
+
+      - name: Purge jsDelivr cache
+        run: |
+          curl -fsSL "https://purge.jsdelivr.net/gh/kalibrado/jf-avatars@latest/dist/main.js" || true
+          curl -fsSL "https://purge.jsdelivr.net/gh/kalibrado/jf-avatars@latest/main.js" || true

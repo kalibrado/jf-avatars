@@ -1,0 +1,96 @@
+name: Release Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Version à publier, ex: 2.4.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare version
+        id: version
+        run: |
+          VERSION="${{ inputs.tag_name }}"
+          VERSION="${VERSION#v}"
+
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Version invalide: $VERSION. Format attendu: 2.4.0"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Install node modules
+        run: npm ci
+
+      - name: Update package version
+        run: |
+          npm version "${{ steps.version.outputs.version }}" \
+            --allow-same-version \
+            --no-git-tag-version
+
+      - name: Build project
+        run: npm run build
+
+      - name: Generate documentation
+        run: npm run docs
+
+      - name: Commit version bump
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          git add package.json package-lock.json
+          git commit -m "chore: release ${{ steps.version.outputs.tag }} [skip ci]" || true
+          git push origin HEAD:main
+
+      - name: Create tag
+        run: |
+          git tag -f "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}" --force
+
+      - name: Upload documentation to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./docs/jf-avatars/${{ steps.version.outputs.version }}"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          make_latest: true
+          files: ./dist/main.js
+
+      - name: Purge jsDelivr cache
+        run: |
+          curl -fsSL "https://purge.jsdelivr.net/gh/kalibrado/jf-avatars@${{ steps.version.outputs.tag }}/dist/main.js" || true
+          curl -fsSL "https://purge.jsdelivr.net/gh/kalibrado/jf-avatars@${{ steps.version.outputs.tag }}/main.js" || true
+          curl -fsSL "https://purge.jsdelivr.net/gh/kalibrado/jf-avatars@latest/dist/main.js" || true
+          curl -fsSL "https://purge.jsdelivr.net/gh/kalibrado/jf-avatars@latest/main.js" || true
