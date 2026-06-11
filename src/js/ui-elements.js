@@ -51,14 +51,14 @@ export const createButton = ({
  */
 export const createSearchBar = (domElement) => {
   let searchDiv = document.createElement("div");
-  setCssProperties(searchDiv, { width: "auto" });
+  setCssProperties(searchDiv, { width: "100%" });
   searchDiv.id = `${props.prefix}-search-container`;
 
   let searchLabel = document.createElement("label");
   searchLabel.classList.add(
     "inputLabel",
     "inputLabel-float",
-    "inputLabelUnfocused"
+    "inputLabelUnfocused",
   );
   searchLabel.setAttribute("for", `${props.prefix}-search-input`);
   searchLabel.textContent = props.getSearchLabel();
@@ -123,21 +123,23 @@ const createFooter = async (domElement, randomCategory) => {
   footer.id = `${props.prefix}-footer-container`;
   setCssProperties(footer, {
     marginTop: "1em",
-    display: "flex",
-    flexDirection: "row",
-    gap: "10px",
-    justifyContent: "center",
-    alignItems: "stretch",
+    display: "grid",
+    gridTemplateColumns: "1fr auto",
+    gap: "12px",
+    alignItems: "end",
+    width: "100%",
   });
 
   let footerLeft = document.createElement("div");
   footerLeft.id = `${props.prefix}-footer-left`;
   setCssProperties(footerLeft, {
     width: "100%",
-    display: "flex",
-    justifyContent: "space-between",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "12px",
+    alignItems: "end",
   });
-  createRandomBtn(footerLeft);
+
   createDropdown(footerLeft, randomCategory);
   createSearchBar(footerLeft);
 
@@ -146,9 +148,12 @@ const createFooter = async (domElement, randomCategory) => {
   let footerRight = document.createElement("div");
   footerRight.id = `${props.prefix}-footer-right`;
   setCssProperties(footerRight, {
-    width: "20%",
+    width: "auto",
     display: "flex",
+    gap: "8px",
     justifyContent: "end",
+    alignItems: "end",
+    flexWrap: "wrap",
   });
   footerRight.appendChild(
     createButton({
@@ -159,17 +164,17 @@ const createFooter = async (domElement, randomCategory) => {
         document.getElementById(`${props.prefix}-modal`).remove();
         document.getElementById(`${props.prefix}-backdrop-modal`).remove();
       },
-    })
+    }),
   );
   footerRight.appendChild(
     createButton({
       id: "validate",
       textContent: props.getBtnValidateLabel(),
       display: "none",
-    })
+    }),
   );
+  createRandomBtn(footerRight);
   footer.appendChild(footerRight);
-
   domElement.appendChild(footer);
 };
 
@@ -196,8 +201,10 @@ export const createImage = (url, idx, isSelected = false) => {
     height: "100px",
     margin: "auto",
     backgroundSize: "cover",
-    transition: "transform 0.2s, box-shadow 0.2s, background-color 0.2s",
-    filter: isSelected ? "brightness(1)" : "brightness(0.5)",
+    transition: "transform 0.2s, box-shadow 0.2s, filter 0.2s, border 0.2s",
+    filter: isSelected ? "brightness(1.25)" : "brightness(0.5)",
+    border: "4px solid transparent",
+    boxSizing: "border-box",
     backgroundColor: "currentColor",
     color: "currentColor",
   });
@@ -242,7 +249,7 @@ export const createGridContainer = () => {
 export const createModal = async () => {
   if (!props.getTitle()) {
     throw new Error(
-      "The title of the modal must be defined in props.getTitle()."
+      "The title of the modal must be defined in props.getTitle().",
     );
   }
 
@@ -260,7 +267,7 @@ export const createModal = async () => {
     "centeredDialog",
     "opened",
     "actionsheet-not-fullscreen",
-    "actionSheet"
+    "actionSheet",
   );
   modal.setAttribute("data-lockscroll", "true");
   modal.setAttribute("data-history", "true");
@@ -268,7 +275,7 @@ export const createModal = async () => {
   modal.setAttribute("data-removeonclose", "true");
   setCssProperties(modal, {
     animation: "160ms ease-out 0s 1 normal both running scaleup",
-    margin: "3em",
+    margin: "0 auto",
   });
   modal.id = `${props.prefix}-modal`;
 
@@ -289,14 +296,18 @@ export const createModal = async () => {
   content.appendChild(imgGrid);
   // gen ranmdon filter option category
   const categories = await tryLoadJson(props.getSrcCatImages());
-  const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+  const randomCategory =
+    categories[Math.floor(Math.random() * categories.length)];
   log("Random category:", randomCategory);
 
   srcImages = srcImages.filter((img) => {
     let folder = img.folder;
     return folder.toLowerCase().includes(randomCategory.toLowerCase());
   });
-  log(`Filtered images count for category "${randomCategory}":`, srcImages.length);
+  log(
+    `Filtered images count for category "${randomCategory}":`,
+    srcImages.length,
+  );
   addImagesToGrid(srcImages, imgGrid);
   createFooter(content, randomCategory);
 
@@ -336,14 +347,13 @@ export const createDropdown = (domElement, randomCategory) => {
   let dropdownContainer = document.createElement("div");
   dropdownContainer.id = idx;
   dropdownContainer.className = `${props.prefix}-dropdown-container`;
-  setCssProperties(dropdownContainer, { width: "45%" });
-
+  setCssProperties(dropdownContainer, { width: "100%" });
   // Create label
   let dropdownLabel = document.createElement("label");
   dropdownLabel.classList.add(
     "inputLabel",
     "inputLabel-float",
-    "inputLabelUnfocused"
+    "inputLabelUnfocused",
   );
   dropdownLabel.setAttribute("for", `${props.prefix}-dropdown-select-filter`);
   dropdownLabel.textContent = props.getFilterLabel();
@@ -353,24 +363,24 @@ export const createDropdown = (domElement, randomCategory) => {
   select.id = `${props.prefix}-dropdown-select-filter`;
   select.classList.add("emby-select");
 
-tryLoadJson(props.getSrcCatImages()).then((folders_names) => {
-  const optionAll = props.getDefaultOptionLabel();
+  tryLoadJson(props.getSrcCatImages()).then((folders_names) => {
+    const optionAll = props.getDefaultOptionLabel();
 
-  [optionAll, ...folders_names].forEach((item) => {
-    const option = document.createElement("option");
-    option.value = item;
-    option.textContent = item;
+    [optionAll, ...folders_names].forEach((item) => {
+      const option = document.createElement("option");
+      option.value = item;
+      option.textContent = item;
 
-    if (item === randomCategory) {
-      option.selected = true;
-    }
+      if (item === randomCategory) {
+        option.selected = true;
+      }
 
-    select.appendChild(option);
+      select.appendChild(option);
+    });
+
+    dropdownLabel.classList.remove("inputLabelUnfocused");
+    dropdownLabel.classList.add("inputLabelFocused");
   });
-
-  dropdownLabel.classList.remove("inputLabelUnfocused");
-  dropdownLabel.classList.add("inputLabelFocused");
-});
   // Style the select element
   setCssProperties(select, {
     width: "100%",
@@ -417,19 +427,36 @@ export const createRandomBtn = (domElement) => {
   span.setAttribute("aria-hidden", "true");
 
   randomBtn.onclick = () => {
-    let images = document.querySelectorAll(
-      `#${props.prefix}-grid-container>img`
+    if ("vibrate" in navigator) {
+      navigator.vibrate(500);
+    }
+
+    const images = document.querySelectorAll(
+      `#${props.prefix}-grid-container > img`,
     );
 
-    let randomImage = images[Math.floor(Math.random() * images.length)];
+    if (!images.length) return;
+
+    const randomImage = images[Math.floor(Math.random() * images.length)];
+
+    randomImage.style.filter = "brightness(1.25)";
+    for (let i = 0; i < images.length; i++) {
+      if (images[i] !== randomImage) {
+        images[i].style.filter = "brightness(0.5)";
+      }
+    }
 
     randomImage.scrollIntoView({
       behavior: "smooth",
-      block: "end",
+      block: "center",
       inline: "center",
     });
 
-    document.getElementById(randomImage.id).click();
+    randomImage.click();
+
+    randomImage.classList.remove(`${props.prefix}-img-random-flash`);
+    void randomImage.offsetWidth;
+    randomImage.classList.add(`${props.prefix}-img-random-flash`);
   };
 
   div.appendChild(span);
