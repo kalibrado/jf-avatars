@@ -53,108 +53,130 @@ export const rippleStyle = `
   .blink {
     animation: blink 1s infinite;
   }
+
+  .jf-avatars-img {
+    box-sizing: border-box;
+  }
+
+  .jf-avatars-img-selected {
+    border: 4px solid var(--highlightOutlineColor, var(--uiAccentColor, #828282));
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--highlightOutlineColor, #828282), transparent 65%),
+      0 0 22px color-mix(in srgb, var(--highlightOutlineColor, #828282), transparent 25%);
+    filter: brightness(1.25);
+    transform: scale(1.08);
+    z-index: 2;
+  }
+
+  .jf-avatars-img-random-flash {
+    animation: jf-avatars-random-flash 5s ease-out 500ms infinite;
+  }
+
+  @keyframes jf-avatars-random-flash {
+    0% {
+      box-shadow:
+        0 0 0 0 var(--textColor, #fff),
+        0 0 0 rgba(255, 255, 255, 0);
+    }
+    45% {
+      box-shadow:
+        0 0 0 7px color-mix(in srgb, var(--textColor, #fff), transparent 25%),
+        0 0 28px var(--highlightOutlineColor, #828282);
+    }
+    100% {
+      box-shadow:
+        0 0 0 4px color-mix(in srgb, var(--highlightOutlineColor, #828282), transparent 65%),
+        0 0 22px color-mix(in srgb, var(--highlightOutlineColor, #828282), transparent 25%);
+    }
+  }
+  
 `;
 
 /**
  * Adjusts the layout of UI elements based on the window size.
  *
  * @function
- * @description Applies specific styles for mobile, tablet, and desktop layouts. 
+ * @description Applies specific styles for mobile, tablet, and desktop layouts.
  * It targets elements such as the footer, search input, and grid container.
  * @returns {void}
  */
 export const adjustResponsive = () => {
   const footer = document.getElementById(`${props.prefix}-footer-container`);
   const searchInput = document.getElementById(
-    `${props.prefix}-search-container`
+    `${props.prefix}-search-container`,
   );
-
   const gridContainer = document.getElementById(
-    `${props.prefix}-grid-container`
+    `${props.prefix}-grid-container`,
   );
-
   const footerLeft = document.getElementById(`${props.prefix}-footer-left`);
   const footerRight = document.getElementById(`${props.prefix}-footer-right`);
 
+  if (
+    !footer ||
+    !searchInput ||
+    !gridContainer ||
+    !footerLeft ||
+    !footerRight
+  ) {
+    return;
+  }
+
   const windowWidth = window.innerWidth;
 
-  if (windowWidth <= 500) {
-    // Mobile styles
+  setCssProperties(searchInput, {
+    width: "100%",
+  });
+
+  if (windowWidth <= 600) {
     setCssProperties(footer, {
-      flexDirection: "column",
-      alignItems: "center",
-    });
-    setCssProperties(gridContainer, {
-      maxHeight: "45vh",
-    });
-    setCssProperties(searchInput, {
-      width: "100%",
+      gridTemplateColumns: "1fr",
     });
 
     setCssProperties(footerLeft, {
-      flexDirection: "column",
+      gridTemplateColumns: "1fr",
     });
+
     setCssProperties(footerRight, {
+      width: "100%",
       justifyContent: "center",
     });
-  } else if (windowWidth <= 1024) {
-    // Tablet styles
-    setCssProperties(footer, {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    });
+
     setCssProperties(gridContainer, {
-      maxHeight: "60vh",
+      height: "35vh",
     });
-    setCssProperties(searchInput, {
-      width: "100%",
+  } else if (windowWidth <= 900) {
+    setCssProperties(footer, {
+      gridTemplateColumns: "1fr",
     });
+
     setCssProperties(footerLeft, {
-      width: "100%",
-      display: "flex",
-      justifyContent: "center",
-      flexDirection: "column",
-      alignItems: "flex-start",
+      gridTemplateColumns: "1fr 1fr",
     });
+
     setCssProperties(footerRight, {
-      display: "flex",
-      justifyContent: "right",
-      alignItems: "center",
-      flexDirection: "column",
+      width: "100%",
+      justifyContent: "end",
+    });
+
+    setCssProperties(gridContainer, {
+      height: "45vh",
     });
   } else {
-    // Desktop styles
     setCssProperties(footer, {
-      marginTop: "1em",
-      display: "inline-flex",
-      flexDirection: "row",
-      gap: "10px",
-      justifyContent: "space-between",
-      width: "100%",
+      gridTemplateColumns: "1fr auto",
     });
 
     setCssProperties(footerLeft, {
-      width: "100%",
-      display: "flex",
-      justifyContent: "space-between",
-      flexDirection: "row",
-      alignItems: "center",
+      gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     });
 
     setCssProperties(footerRight, {
-      display: "flex",
-      width: "fit-content",
-      justifyContent: "space-between",
-      alignItems: "center",
-      flexDirection: "row",
+      width: "auto",
+      justifyContent: "end",
     });
 
     setCssProperties(gridContainer, {
-      maxHeight: "60vh",
-    });
-    setCssProperties(searchInput, {
-      width: "45%",
+      height: "50vh",
     });
   }
 };

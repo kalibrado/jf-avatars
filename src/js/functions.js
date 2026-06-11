@@ -28,7 +28,7 @@ export const log = (...data) => {
 
     console.group(
       `%c######### ${props.prefix} #########`,
-      "color: #3498db; font-weight: bold;"
+      "color: #3498db; font-weight: bold;",
     );
     console.log(`%c${timestamp}`, "color: #2ecc71;");
 
@@ -70,7 +70,7 @@ export const getsrcImagesaved = () =>
  */
 export const toggleValidateButton = (img) => {
   const validateButton = document.querySelector(
-    `button[id='${props.prefix}-btn-validate']`
+    `button[id='${props.prefix}-btn-validate']`,
   );
 
   img.onmouseover = () => ({});
@@ -85,7 +85,7 @@ export const toggleValidateButton = (img) => {
 
   props.selectedImage = img;
 
-  setCssProperties(props.selectedImage, { filter: "brightness(1)" });
+  setCssProperties(props.selectedImage, { filter: "brightness(1.25)" });
 };
 
 /**
@@ -100,7 +100,7 @@ export const waitForElement = (
   selector,
   callback,
   interval = 100,
-  timeout = 1000
+  timeout = 1000,
 ) => {
   const start = Date.now();
   const checkExist = setInterval(() => {
@@ -121,7 +121,7 @@ export const waitForElement = (
 
 export const getProfileImageUrl = () => {
   const element = document.querySelector(
-    'div[class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound"]'
+    'div[class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound"]',
   );
   if (element) {
     return element.style.backgroundImage.split('"')[1];
@@ -172,8 +172,8 @@ export const onSelectImage = async (src) => {
 
   // Get the selected user ID from URL hash (since params are after #)
   const hash = window.location.hash;
-  const hashParams = new URLSearchParams(hash.split('?')[1] || '');
-  const selectedUserId = hashParams.get('userId');
+  const hashParams = new URLSearchParams(hash.split("?")[1] || "");
+  const selectedUserId = hashParams.get("userId");
 
   // Loop through all keys in localStorage
   for (let i = 0; i < localStorage.length; i++) {
@@ -206,9 +206,7 @@ export const onSelectImage = async (src) => {
       // Check if the UserId is the same as the selected user ID.
       // If it is, update the user profile picture in the corner.
       if (UserId == selectedUserId) {
-        const element = document.querySelector(
-          ".headerUserButton"
-        )
+        const element = document.querySelector(".headerUserButton");
 
         // If a user hasn't had an avatar before, then this class won't exist.
         if (!element.classList.contains("headerUserButtonRound")) {
@@ -216,7 +214,6 @@ export const onSelectImage = async (src) => {
         }
 
         element.innerHTML = `<div class="headerButton headerButtonRight paper-icon-button-light headerUserButtonRound" style="background-image:${backgroundImage};"></div>`;
-
       }
       window.localStorage.setItem(`${props.prefix}-selected-img`, src);
       document.getElementById(`${props.prefix}-modal`).remove();
@@ -241,7 +238,7 @@ export const onSelectImage = async (src) => {
  */
 export const addImagesToGrid = async (
   srcImages = [],
-  imgGrid = createGridContainer()
+  imgGrid = createGridContainer(),
 ) => {
   if (!(imgGrid instanceof HTMLElement)) {
     throw new Error("imgGrid must be a valid HTML element.");
@@ -257,7 +254,7 @@ export const addImagesToGrid = async (
   // Add the selected image if it exists
   if (props.selectedImage) {
     allImage.unshift(
-      createImage(props.selectedImage.src, `selected-tmp`, true)
+      createImage(props.selectedImage.src, `selected-tmp`, true),
     );
   }
 
@@ -301,7 +298,7 @@ export const loadSrcImages = async () => {
         parsedData.src === pathCustom
       ) {
         log(
-          `Using cached srcImages (${parsedData.data.length}) from localStorage`
+          `Using cached srcImages (${parsedData.data.length}) from localStorage`,
         );
         return parsedData.data;
       }
