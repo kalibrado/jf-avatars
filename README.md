@@ -81,7 +81,11 @@ JF-AVATARS
       throw err;
     });
   }
+const fix = document.createElement("style");
 
+fix.textContent = "#jf-avatars-modal{position:fixed!important;inset:0!important;margin:auto!important}";
+
+document.head.appendChild(fix);
   function init() {
     const start = async () => {
       try {
