@@ -1,3 +1,4 @@
+import { initDiagnostics, diagnosticError } from "./diagnostics.js";
 import { loadLanguage, waitForElement, log } from "./functions.js";
 import { injectStyles } from "./style.js";
 import { props } from "./props.js";
@@ -10,6 +11,8 @@ import { createButton, createModal } from "./ui-elements.js";
  * @module index
  */
 
+initDiagnostics();
+
 const addProfileButton = () => {
   log("Attempting to add button");
   // Reinject the button if it's missing from the DOM
@@ -20,7 +23,7 @@ const addProfileButton = () => {
         createButton({
           id: "show-modal",
           textContent: props.getBtnShowAvatarsLabel(),
-          onClick: () => createModal(),
+          onClick: () => createModal().catch((error) => diagnosticError("Open avatar picker", error)),
         })
       );
 

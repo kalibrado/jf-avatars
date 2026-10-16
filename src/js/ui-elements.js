@@ -1,3 +1,4 @@
+import { diagnostic, diagnosticError } from "./diagnostics.js";
 import { applySearchAndFilters, eventListener } from "./events.js";
 import {
   addImagesToGrid,
@@ -108,6 +109,7 @@ export const showRippleLoader = () => {
     alignItems: "center",
     justifyContent: "center",
   });
+  diagnostic("Show loader; replaceChildren: " + typeof grid.replaceChildren);
   grid.replaceChildren(loader);
   return loader;
 };
@@ -308,7 +310,8 @@ export const createModal = async () => {
     `Filtered images count for category "${randomCategory}":`,
     srcImages.length,
   );
-  addImagesToGrid(srcImages, imgGrid);
+  diagnostic("Initial category: " + randomCategory + "; matching avatars: " + srcImages.length);
+  await addImagesToGrid(srcImages, imgGrid).catch((error) => diagnosticError("Initial grid", error));
   createFooter(content, randomCategory);
 
   modal.appendChild(content);

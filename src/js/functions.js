@@ -1,3 +1,4 @@
+import { diagnostic, diagnosticError, diagnosticUrl } from "./diagnostics.js";
 import { props } from "./props.js";
 import { setCssProperties } from "./style.js";
 import {
@@ -243,6 +244,7 @@ export const addImagesToGrid = async (
   if (!(imgGrid instanceof HTMLElement)) {
     throw new Error("imgGrid must be a valid HTML element.");
   }
+  diagnostic("Grid requested: " + srcImages.length + " avatars");
   showRippleLoader();
 
   let allImage = [];
@@ -300,6 +302,7 @@ export const loadSrcImages = async () => {
         log(
           `Using cached srcImages (${parsedData.data.length}) from localStorage`,
         );
+        diagnostic("Metadata cache: " + parsedData.data.length + " avatars");
         return parsedData.data;
       }
       // Otherwise, data is expired and will be reloaded
@@ -324,6 +327,7 @@ export const loadSrcImages = async () => {
 
     return data;
   } catch (error) {
+    diagnosticError("Metadata loading", error);
     log("Error:", error);
     return [];
   }
@@ -383,13 +387,17 @@ export const loadLanguage = async () => {
 export const tryLoadJson = async (url, cache = "no-store") => {
   try {
     log(`Attempting to load: ${url}`);
+    diagnostic("JSON request: " + diagnosticUrl(url));
     const response = await fetch(url, { cache });
+    diagnostic("JSON HTTP " + response.status + ": " + diagnosticUrl(url));
     if (!response.ok) throw new Error(`File ${url} not found`);
 
     const data = await response.json();
+    diagnostic("JSON parsed: " + (Array.isArray(data) ? data.length + " entries" : "object"));
     log("JSON loaded:", data);
     return data;
   } catch (error) {
+    diagnosticError("JSON failed: " + diagnosticUrl(url), error);
     log(`Error loading from: ${url}, ${error.message}`);
     return null;
   }

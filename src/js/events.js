@@ -1,3 +1,4 @@
+import { diagnosticError } from "./diagnostics.js";
 import {
   addImagesToGrid,
   log,
@@ -75,7 +76,7 @@ export const applySearchAndFilters = async (event) => {
   if (filteredSrcImages.length > 0) {
     preloadImportantImages(filteredSrcImages);
     if (imgGrid) {
-      addImagesToGrid(filteredSrcImages, imgGrid);
+      await addImagesToGrid(filteredSrcImages, imgGrid);
       lazyImages().forEach((img) => {
         if (isInViewport(img)) {
           const actualSrc = img.getAttribute("data-src");
@@ -86,7 +87,7 @@ export const applySearchAndFilters = async (event) => {
       });
     }
   } else {
-    addImagesToGrid(props.avatarUrls(currentSearchTerm), imgGrid);
+    await addImagesToGrid(props.avatarUrls(currentSearchTerm), imgGrid);
     lazyImages().forEach((img) => {
       if (isInViewport(img)) {
         const actualSrc = img.getAttribute("data-src");
@@ -107,8 +108,8 @@ export const eventListener = () => {
     `#${props.prefix}-dropdown-select-filter`
   );
 
-  searchBar.addEventListener("input", applySearchAndFilters);
-  dropdown.addEventListener("change", applySearchAndFilters);
+  searchBar.addEventListener("input", (event) => applySearchAndFilters(event).catch((error) => diagnosticError("Search", error)));
+  dropdown.addEventListener("change", (event) => applySearchAndFilters(event).catch((error) => diagnosticError("Category change", error)));
   window.addEventListener("resize", adjustResponsive);
 
   lazyImages().forEach((img) => {

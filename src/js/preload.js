@@ -1,3 +1,4 @@
+import { diagnosticImage } from "./diagnostics.js";
 import { log, toggleValidateButton } from "./functions.js";
 import { props } from "./props.js";
 import { setCssProperties } from "./style.js";
@@ -95,8 +96,12 @@ export const loadImageWithPriority = (img, actualSrc) => {
   imageQueue.add(() => {
     return new Promise((resolve, reject) => {
       const image = new Image();
+      diagnosticImage("started", actualSrc);
+      const timer = setTimeout(() => diagnosticImage("timeout", actualSrc), 15000);
 
       image.onload = () => {
+        clearTimeout(timer);
+        diagnosticImage("loaded", actualSrc);
         img.src = actualSrc;
         img.classList.remove("blink");
         setCssProperties(img, { cursor: "pointer" });
@@ -105,6 +110,8 @@ export const loadImageWithPriority = (img, actualSrc) => {
       };
 
       image.onerror = () => {
+        clearTimeout(timer);
+        diagnosticImage("failed", actualSrc);
         log(`Image failed to load: ${actualSrc}`);
         img.remove();
         reject(new Error(`Failed to load image: ${actualSrc}`));
