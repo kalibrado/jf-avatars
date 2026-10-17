@@ -110,7 +110,9 @@ export const showRippleLoader = () => {
     justifyContent: "center",
   });
   diagnostic("Show loader; replaceChildren: " + typeof grid.replaceChildren);
-  grid.replaceChildren(loader);
+  // Qt 5 WebEngine (Jellyfin Desktop 1.12) lacks replaceChildren.
+  grid.innerHTML = "";
+  grid.appendChild(loader);
   return loader;
 };
 

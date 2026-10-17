@@ -30,26 +30,29 @@ async function test(missingAPI, failImages) {
   const report = w.document.querySelector("#jf-avatars-diagnostics textarea").value;
   assert.match(report, /JSON HTTP 200/);
   assert.ok(w.document.getElementById("jf-avatars-modal"));
-  if (missingAPI) {
-    assert.match(report, /Initial grid: .*replaceChildren/);
-    assert.equal(w.document.querySelectorAll("#jf-avatars-grid-container img").length, 0);
-  } else if (failImages) {
+  assert.doesNotMatch(report, /Initial grid:|Category change:/);
+  if (failImages) {
     assert.match(report, /"failed":1/);
     assert.match(report, /Image failed: https:\/\/images.example\/avatar.png/);
   } else {
     assert.match(report, /"loaded":1/);
     assert.equal(w.document.querySelector("#jf-avatars-grid-container img").src, "https://images.example/avatar.png");
   }
-  // Category changes must surface the same failure, rather than lose the report.
+  // Rebuilding the grid must work on both old and recent clients.
   const select = w.document.querySelector("#jf-avatars-dropdown-select-filter");
   select.dispatchEvent(new w.Event("change"));
   await wait(200);
-  if (missingAPI) assert.match(w.document.querySelector("textarea").value, /Category change: .*replaceChildren/);
+  assert.doesNotMatch(w.document.querySelector("textarea").value, /Initial grid:|Category change:/);
+  assert.equal(w.document.querySelectorAll("#jf-avatars-grid-container img").length, failImages ? 0 : 1);
+  if (!failImages) {
+    assert.equal(w.document.querySelector("#jf-avatars-grid-container img").src, "https://images.example/avatar.png");
+  }
   dom.window.close();
 }
 (async () => {
   await test(false, false);
   await test(true, false);
   await test(false, true);
+  await test(true, true);
   console.log("PASS: normal grid, missing replaceChildren, image failure, category changes");
 })().catch((error) => { console.error(error); process.exitCode = 1; });
