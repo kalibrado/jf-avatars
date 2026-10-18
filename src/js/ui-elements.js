@@ -108,7 +108,13 @@ export const showRippleLoader = () => {
     alignItems: "center",
     justifyContent: "center",
   });
-  grid.replaceChildren(loader);
+  // Older Qt WebEngine clients do not implement replaceChildren.
+  if (typeof grid.replaceChildren === "function") {
+    grid.replaceChildren(loader);
+  } else {
+    grid.innerHTML = "";
+    grid.appendChild(loader);
+  }
   return loader;
 };
 
